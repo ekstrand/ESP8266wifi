@@ -1,6 +1,12 @@
 # ESP8266
 A simple ESP8266 Arduino library with built in re-connect functionality.
 
+## Install
+* Download the library as a zip from https://github.com/ekstrand/ESP8266wifi/archive/master.zip 
+* Unzip and place in you <arduino_home>/libraries/ directory as ESP8266wifi
+* Restart the arduino IDE
+* In your sketch do a `#include <ESP8266wifi.h>`
+
 ## Constructor
 
 **ESP8266wifi(Stream serialIn, Stream serialOut, byte resetPin, boolean echo)**
@@ -110,6 +116,21 @@ void loop(){
 ## Re-connect functionality
 Everytime send(...)  and listenForIncomingMessage(..) is called a watchdog checks that the configured access point, server and local access point and server is still running, if not they will be restarted or re-connected. The same thing happens if the ESP8266 should reset.
 Note: It is really only the send method that can detect a lost connection to the server. To be sure you are connected, do a send once in a while..
+
+## Avanced configuration
+In ESP8266wifi.h you can change some stuff:
+* **HW_RESET_RETRIES 3** - is the maximum number of times begin() will try to start the ESP8266 module
+* **define SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 30** - is the nr of time the watchdog will try to establish connection to a server before a harware reset of the ESP8266 is performed
+* The maximum number of characters for incoming and outgoing messages can be changes by editing:
+    * char msgOut[26];
+    * char msgIn[26];
+* If the limit for ssid and password lenght does not suite you, please change:
+    * char _ssid[16];
+    * char _password[16];
+    *  char _localAPSSID[16];
+    *  char _localAPPassword[16];
+
+
 
 
 
