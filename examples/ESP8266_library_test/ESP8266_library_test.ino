@@ -4,7 +4,7 @@
 SoftwareSerial swSerial(8, 9, false);
 
 // 10 is the pin used to reset the esp8266 
-/ the last parameter sets the local echo option for the ESP8266 module..
+// the last parameter sets the local echo option for the ESP8266 module..
 ESP8266wifi wifi(swSerial, swSerial, 10, true); 
 
 String inputString;
