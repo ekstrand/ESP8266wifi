@@ -110,7 +110,7 @@ void loop(){
 * **return** true if the local access point was stopped
 * **Example:** `boolean localAPAndServerStopped = wifi.stopLocalAPAndServer();`
 
-** boolean isLocalAPAndServerRunning()** check if local access point and server is running
+**boolean isLocalAPAndServerRunning()** check if local access point and server is running
 * **return** true if the local access point and local server is running
 * **Example:** `boolean localAPAndServerRunning = wifi.isLocalAPAndServerRunning();`
 
