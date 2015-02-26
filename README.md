@@ -1,7 +1,7 @@
 # ESP8266
 A simple ESP8266 Arduino library with built in re-connect functionality.
 
-##Memory footprint
+##Memory footprint (using Arduino Nano v3 ATMega 328, Arduino IDE 1.60)
 * approx 3.5kB of program storage
 * approx 285 bytes or RAM
 
