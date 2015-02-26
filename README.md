@@ -11,6 +11,7 @@ A simple ESP8266 Arduino library with built in re-connect functionality.
 * Unzip and place in ARDUINO_HOME/libraries/ directory as ESP8266wifi
 * Restart the Arduino IDE
 * In your sketch do a `#include <ESP8266wifi.h>`
+* To set up a simple server for testing, I like to use SocketTest http://sourceforge.net/projects/sockettest/
 
 ## Constructor
 
