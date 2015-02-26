@@ -59,7 +59,7 @@ A simple ESP8266 Arduino library with built in re-connect functionality.
 ```
 wifi.send(SERVER, "You", false);
 wifi.send(SERVER, " are ", false);
-wifi.send(SERVER, "fantastic!", true); // ie wifi.send(SERVER, "fantastic!"); will send.
+wifi.send(SERVER, "fantastic!", true); // ie wifi.send(SERVER, "fantastic!");
 ```
 **endSendWithNewline(bool endSendWithNewline)** by default all messages are sent with newline and carrage return (println), you can disable this
 * **endSendWithNewline** sent messages with print instead of println
@@ -109,6 +109,7 @@ void loop(){
 
 ## Re-connect functionality
 Everytime send(...)  and listenForIncomingMessage(..) is called a watchdog checks that the configured access point, server and local access point and server is still running, if not they will be restarted or re-connected. The same thing happens if the ESP8266 should reset.
+Note: It is really only the send method that can detect a lost connection to the server. To be sure you are connected, do a send once in a while..
 
 
 
