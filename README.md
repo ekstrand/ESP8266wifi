@@ -125,7 +125,7 @@ Note: It is really only the send method that can detect a lost connection to the
 ## Avanced configuration
 In ESP8266wifi.h you can change some stuff:
 * **HW_RESET_RETRIES 3** - is the maximum number of times begin() will try to start the ESP8266 module
-* **define SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 30** - is the nr of time the watchdog will try to establish connection to a server before a harware reset of the ESP8266 is performed
+* **SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 30** - is the nr of time the watchdog will try to establish connection to a server before a harware reset of the ESP8266 is performed
 * The maximum number of characters for incoming and outgoing messages can be changes by editing:
     * char msgOut[26];
     * char msgIn[26];
