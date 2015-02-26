@@ -1,4 +1,4 @@
-# ESP8266
+# ESP8266wifi
 A simple ESP8266 Arduino library with built in re-connect functionality.
 
 ##Memory footprint (using Arduino Nano v3 ATMega 328, Arduino IDE 1.60)
