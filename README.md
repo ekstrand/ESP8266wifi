@@ -56,7 +56,7 @@ A simple ESP8266 Arduino library with built in re-connect functionality.
 * **sendNow** if false, the message is appended to a buffer, if true the message is sent right away
 * **return** true if the message was sent
 * **Example:** 
-* ```
+```
 wifi.send(SERVER, "You", false);
 wifi.send(SERVER, " are ", false);
 wifi.send(SERVER, "fantastic!", true); // ie wifi.send(SERVER, "fantastic!"); will send.
@@ -73,7 +73,7 @@ wifi.send(SERVER, "fantastic!", true); // ie wifi.send(SERVER, "fantastic!"); wi
  * **char channel** tells you if the message was received from the server (channel == SERVER) or another source
  * **char * message** the message as a character array (up to the first 25 characters)
 * **Example:** 
-* ```
+```
 void loop(){
     WifiMessage in = wifi.listenForIncomingMessage(6000);
     if (in.hasData) {
