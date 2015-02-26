@@ -1,6 +1,10 @@
 # ESP8266
 A simple ESP8266 Arduino library with built in re-connect functionality.
 
+##Memory footprint
+* approx 3.5kB of program storage
+* approx 285 bytes or RAM
+
 
 ## Install
 * Download the library as a zip from https://github.com/ekstrand/ESP8266wifi/archive/master.zip 
