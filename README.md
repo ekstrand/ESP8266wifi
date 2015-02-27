@@ -3,7 +3,8 @@ A simple ESP8266 Arduino library with built in re-connect functionality.
 * The ESP8266 is a dirtcheap wifimodule. I got mine for about 2.50 US including shipping at Aliexpress. Read about it here: https://nurdspace.nl/ESP8266
 * An AT command reference can be found here: https://github.com/espressif/esp8266_at/wiki/AT_Description
 
-##Memory footprint (using Arduino Nano v3 ATMega 328, Arduino IDE 1.60)
+##Memory footprint and more
+* Tested on an Arduino Nano v3 ATMega 328, Arduino IDE 1.60, ESP8266 module with firmware version 0.9.2.4
 * approx 3.5kB of program storage
 * approx 285 bytes or RAM
 
