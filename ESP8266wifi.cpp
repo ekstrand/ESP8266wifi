@@ -151,7 +151,7 @@ void ESP8266wifi::restart(){
         connectToServer();
 }
 
-bool ESP8266wifi::connectToAP(const char* ssid, const char* password){
+bool ESP8266wifi::connectToAP(const char* ssid, const char* password){//TODO make timeout config or parameter??
     strncpy(_ssid, ssid, sizeof _ssid);
     strncpy(_password, password, sizeof _password);
     flags.apConfigured = true;
@@ -199,7 +199,7 @@ void ESP8266wifi::setTransportToTCP(){
     flags.connectToServerUsingTCP = true;
 }
 
-bool ESP8266wifi::connectToServer(const char* ip, const char* port){
+bool ESP8266wifi::connectToServer(const char* ip, const char* port){//TODO make timeout config or parameter??
     strncpy(_ip, ip, sizeof _ip);
     strncpy(_port, port, sizeof _port);
     flags.serverConfigured = true;
@@ -229,7 +229,7 @@ bool ESP8266wifi::connectToServer(){
     loadString(LINKED,buf);
     loadString(ALREADY,buf2);
     
-    flags.connectedToServer = (findString(5000, buf, buf2) > 0);
+    flags.connectedToServer = (findString(10000, buf, buf2) > 0);
     
     if(flags.connectedToServer)
         serverRetries = 0;
@@ -417,12 +417,14 @@ WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
     //Message received..
     else if (msgOrRestart == 1) {
         char channel = _serialIn -> read();
+        delayMicroseconds(50);//I dont know why ./
         if(channel == SERVER)
             flags.connectedToServer = true;
         _serialIn -> read(); // removing commma
         byte length = 0;
         while (_serialIn -> available()) {
             char c = _serialIn -> read();
+            delayMicroseconds(50);//I dont know why ./
             if (c == ':')
                 break;
             else{
@@ -434,8 +436,13 @@ WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
         length = atoi(buf);
         byte i;
         for (i = 0; i < length; i++) {
-            if( ((sizeof msgIn) - 2) >= i) // Only read until buffer is full - null char
+            if( ((sizeof msgIn) - 2) >= i) {// Only read until buffer is full - null char
                 msgIn[i] =  (char) _serialIn -> read();
+                if(flags.debug)
+                    _dbgSerial -> print(msgIn[i]);
+                else
+                    delayMicroseconds(50);//I dont know why ./
+            }
             else
                 break;
         }
@@ -470,8 +477,12 @@ byte ESP8266wifi::findString(int timeout,  const char * what,  const char * what
     while ((millis() < stop)) {
         while (_serialIn -> available()) {
             c = (_serialIn -> read());
+
             if(flags.debug)
                 _dbgSerial -> print(c);
+            else
+                delayMicroseconds(50);//I dont know why ./
+
             if (c == what[nextPosMatch1])
                 ++nextPosMatch1;
             else
