@@ -64,9 +64,6 @@ void loop() {
   WifiMessage in = wifi.listenForIncomingMessage(6000);
   if (in.hasData) {
     Serial.println(in.message);
-
-    Serial.print(freeMemoryAsInt());
-    Serial.println(" bytes free");
     //Echo back;
     wifi.send(in.channel, "ES:", false);
     wifi.send(in.channel, in.message);
