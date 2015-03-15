@@ -62,7 +62,7 @@ void loop() {
   if (in.hasData) {
     Serial.println(in.message);
     //Echo back;
-    wifi.send(in.channel, "ES:", false);
+    wifi.send(in.channel, "Echo:", false);
     wifi.send(in.channel, in.message);
     nextPing = millis() + 10000;
   }
