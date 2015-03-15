@@ -31,17 +31,21 @@ void setup() {
   wifi.endSendWithNewline(true); // Will end all transmissions with a newline and carrage return ie println.. default is true
 
   wifi.begin();
-  wifi.connectToAP("wifissid", "wifipass"); 
+
+  //Turn on local ap and server (TCP)
+  wifi.startLocalAPAndServer("MY_CONFIG_AP", "password", "5", "2121");
+
+  wifi.connectToAP("wifissid", "wifipass");
   wifi.connectToServer("192.168.0.28", "2121");
   wifi.send(SERVER, "ESP8266 test app started");
 }
 
 void loop() {
-  
+
   //Make sure the esp8266 is started..
   if (!wifi.isStarted())
     wifi.begin();
-    
+
   //Send what you typed in the arduino console to the server
   static char buf[20];
   if (stringComplete) {
@@ -60,6 +64,11 @@ void loop() {
   //Listen for incoming messages and echo back, will wait until a message is received, or max 6000ms..
   WifiMessage in = wifi.listenForIncomingMessage(6000);
   if (in.hasData) {
+
+    if (in.channel == SERVER)
+      Serial.println("Message from the server:");
+    else
+      Serial.println("Message a local client:");
     Serial.println(in.message);
     //Echo back;
     wifi.send(in.channel, "Echo:", false);
