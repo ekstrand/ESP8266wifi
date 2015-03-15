@@ -31,7 +31,7 @@ void setup() {
   wifi.endSendWithNewline(true); // Will end all transmissions with a newline and carrage return ie println.. default is true
 
   wifi.begin();
-  wifi.connectToAP("wifissid", "wifipass");
+  wifi.connectToAP("wifissid", "wifipass"); 
   wifi.connectToServer("192.168.0.28", "2121");
   wifi.send(SERVER, "ESP8266 test app started");
 }
