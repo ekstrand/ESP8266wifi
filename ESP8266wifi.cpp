@@ -321,6 +321,7 @@ void ESP8266wifi::watchdog(){
     //Give up do a hw reset
     if(serverRetries >= SERVER_CONNECT_RETRIES_BEFORE_HW_RESET){
         restart();
+        return;
     }
     
     //Try to start server and or ap if needed
