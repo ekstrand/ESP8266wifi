@@ -136,13 +136,10 @@ private:
     
     char msgOut[26];//buffer for send method
     char msgIn[26]; //buffer for listen method = limit of incoming message..
-    
-    char buf[26];
-    
+
+    void writeCommand(const char* text1, const char* text2 = NULL);
     byte readCommand(int timeout, const char* text1 = NULL, const char* text2 = NULL);
 
-    void loadString(const char* str, char* out);
-    
     Stream* _dbgSerial;
 };
 

@@ -56,6 +56,7 @@ const char COMMA_1[] PROGMEM = "\",";
 const char COMMA_2[] PROGMEM = "\",\"";
 const char THREE_COMMA[] PROGMEM = ",3";
 const char DOUBLE_QUOTE[] PROGMEM = "\"";
+const char EOL[] PROGMEM = "\n";
 
 ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin) {
     _serialIn = &serialIn;
@@ -102,10 +103,6 @@ void ESP8266wifi::endSendWithNewline(bool endSendWithNewline){
     flags.endSendWithNewline = endSendWithNewline;
 }
 
-void ESP8266wifi::loadString(const char* str, char* out) {
-    strcpy_P(out, (char*)str);
-}
-
 bool ESP8266wifi::begin() {
     msgOut[0] = '\0';
     msgIn[0] = '\0';
@@ -130,23 +127,20 @@ bool ESP8266wifi::begin() {
         return false;
     
     //Turn local AP = off
-    loadString(CWMODE_1,buf);
-    _serialOut -> println(buf);
+    writeCommand(CWMODE_1, EOL);
     if (readCommand(1000, OK, NO_CHANGE) == 0)
         return false;
     
     // Set echo on/off
     if(flags.echoOnOff)//if echo = true
-        loadString(ATE1,buf);
+        writeCommand(ATE1, EOL);
     else
-        loadString(ATE0,buf);
-    _serialOut -> println(buf);
+        writeCommand(ATE0, EOL);
     if (readCommand(1000, OK, NO_CHANGE) == 0)
         return false;
     
     // Set mux to enable multiple connections
-    loadString(CIPMUX_1,buf);
-    _serialOut -> println(buf);
+    writeCommand(CIPMUX_1, EOL);
     flags.started = readCommand(3000, OK, NO_CHANGE) > 0;
     return flags.started;
 }
@@ -175,29 +169,19 @@ bool ESP8266wifi::connectToAP(const char* ssid, const char* password){//TODO mak
 }
 
 bool ESP8266wifi::connectToAP(){
-    loadString(CWJAP,buf);
-    _serialOut -> print(buf);
-    
+    writeCommand(CWJAP);
     _serialOut -> print(_ssid);
-    
-    loadString(COMMA_2,buf);
-    _serialOut -> print(buf);
-    
+    writeCommand(COMMA_2);
     _serialOut -> print(_password);
-    
-    loadString(DOUBLE_QUOTE,buf);
-    _serialOut -> println(buf);
-    
+    writeCommand(DOUBLE_QUOTE, EOL);
+
     readCommand(15000, OK, FAIL);
     return isConnectedToAP();
 }
 
 bool ESP8266wifi::isConnectedToAP(){
-    loadString(CIFSR,buf);
-    _serialOut -> println(buf);
-    
+    writeCommand(CIFSR, EOL);
     byte code = readCommand(350, NO_IP, ERROR);
-    
     readCommand(10, OK); //cleanup
     return (code == 0);
 }
@@ -218,23 +202,14 @@ bool ESP8266wifi::connectToServer(const char* ip, const char* port){//TODO make 
 }
 
 bool ESP8266wifi::connectToServer(){
-    loadString(CIPSTART,buf);
-    _serialOut -> print(buf);
-    
-    if(flags.connectToServerUsingTCP)
-        loadString(TCP,buf);
+    writeCommand(CIPSTART);
+    if (flags.connectToServerUsingTCP)
+        writeCommand(TCP);
     else
-        loadString(UDP,buf);
-    _serialOut -> print(buf);
-    
-    loadString(COMMA_2,buf);
-    _serialOut -> print(buf);
-    
+        writeCommand(UDP);
+    writeCommand(COMMA_2);
     _serialOut -> print(_ip);
-    
-    loadString(COMMA_1,buf);
-    _serialOut -> print(buf);
-    
+    writeCommand(COMMA_1);
     _serialOut -> println(_port);
     
     flags.connectedToServer = (readCommand(10000, LINKED, ALREADY) > 0);
@@ -262,36 +237,24 @@ bool ESP8266wifi::startLocalAPAndServer(const char* ssid, const char* password, 
 
 bool ESP8266wifi::startLocalAPAndServer(){
     // Start local ap mode (eg both local ap and ap)
-    loadString(CWMODE_3, buf);
-    
-    _serialOut -> println(buf);
+    writeCommand(CWMODE_3, EOL);
     if (!readCommand(2000, OK, NO_CHANGE))
         return false;
     
     // Configure the soft ap
-    loadString(CWSAP,buf);
-    _serialOut -> print(buf);
+    writeCommand(CWSAP);
     _serialOut -> print(_localAPSSID);
-    
-    loadString(COMMA_2,buf);
-    _serialOut -> print(buf);
-    
+    writeCommand(COMMA_2);
     _serialOut -> print(_localAPPassword);
-    
-    loadString(COMMA_1,buf);
-    _serialOut -> print(buf);
-    
+    writeCommand(COMMA_1);
     _serialOut -> print(_localAPChannel);
-    
-    loadString(THREE_COMMA, buf);
-    _serialOut -> println(buf);
+    writeCommand(THREE_COMMA, EOL);
     
     if(readCommand(5000, OK, ERROR) != 1)
         return false;
     
     // Start local server
-    loadString(CIPSERVER,buf);
-    _serialOut -> print(buf);
+    writeCommand(CIPSERVER);
     _serialOut -> println(_localServerPort);
     
     flags.localAPAndServerRunning = (readCommand(2000, OK, NO_CHANGE) > 0);
@@ -300,8 +263,7 @@ bool ESP8266wifi::startLocalAPAndServer(){
 
 bool ESP8266wifi::stopLocalAPAndServer(){
     //NOT STOPPING SERVER = RESTART..
-    loadString(CWMODE_1, buf);
-    _serialOut -> println(buf);
+    writeCommand(CWMODE_1, EOL);
 
     boolean stopped = (readCommand(2000, OK, NO_CHANGE) > 0);
     flags.localAPAndServerRunning = !stopped;
@@ -355,11 +317,9 @@ bool ESP8266wifi::send(char channel, const char * message, bool sendNow){
     if(flags.endSendWithNewline)
         length += 2;
     
-    loadString(CIPSEND,buf);
-    _serialOut -> print(buf);
+    writeCommand(CIPSEND);
     _serialOut -> print(channel);
-    loadString(COMMA,buf);
-    _serialOut -> print(buf);
+    writeCommand(COMMA);
     _serialOut -> println(length);
     byte prompt = readCommand(1000, PROMPT, LINK_IS_NOT);
     if (prompt != 2) {
@@ -388,6 +348,7 @@ bool ESP8266wifi::send(char channel, const char * message){
 
 WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
     watchdog();
+    char buf[16] = {'\0'};
     msgIn[0] = '\0';
     
     static WifiMessage msg;
@@ -398,7 +359,6 @@ WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
 
     //TODO listen for unlink etc...
     byte msgOrRestart = readCommand(timeout, IPD, READY);
-    buf[0] = '\0';
     
     //Detected a esp8266 restart
     if (msgOrRestart == 2){
@@ -444,6 +404,19 @@ WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
         readCommand(10, OK); // cleanup after rx
     }
     return msg;
+}
+
+// Writes commands (from PROGMEM) to serial output
+void ESP8266wifi::writeCommand(const char* text1 = NULL, const char* text2) {
+    char buf[16] = {'\0'};
+    strcpy_P(buf, (char *) text1);
+    _serialOut->print(buf);
+    if (text2 == EOL) {
+        _serialOut->println();
+    } else if (text2 != NULL) {
+        strcpy_P(buf, (char *) text2);
+        _serialOut->print(buf);
+    }
 }
 
 // Reads from serial input until a expected string is found (or until timeout)
