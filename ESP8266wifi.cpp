@@ -57,7 +57,7 @@ const char COMMA_2[] PROGMEM = "\",\"";
 const char THREE_COMMA[] PROGMEM = ",3";
 const char DOUBLE_QUOTE[] PROGMEM = "\"";
 
-ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin, bool echo) {
+ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin) {
     _serialIn = &serialIn;
     _serialOut = &serialOut;
     _resetPin = resetPin;
@@ -65,14 +65,38 @@ ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin, boo
     pinMode(_resetPin, OUTPUT);
     digitalWrite(_resetPin, LOW);//Start with radio off
     
-    flags.echoOnOff = echo;
     flags.connectToServerUsingTCP = true;
     flags.endSendWithNewline = true;
     flags.started = false;
     flags.localAPandServerConfigured = false;
     flags.apConfigured = false;
     flags.serverConfigured = false;
+    
+    flags.debug = false;
+    flags.echoOnOff = false;
 }
+
+
+ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin, Stream &dbgSerial) {
+    _serialIn = &serialIn;
+    _serialOut = &serialOut;
+    _resetPin = resetPin;
+    
+    pinMode(_resetPin, OUTPUT);
+    digitalWrite(_resetPin, LOW);//Start with radio off
+    
+    flags.connectToServerUsingTCP = true;
+    flags.endSendWithNewline = true;
+    flags.started = false;
+    flags.localAPandServerConfigured = false;
+    flags.apConfigured = false;
+    flags.serverConfigured = false;
+    
+    _dbgSerial = &dbgSerial;
+    flags.debug = true;
+    flags.echoOnOff = true;    
+}
+
 
 void ESP8266wifi::endSendWithNewline(bool endSendWithNewline){
     flags.endSendWithNewline = endSendWithNewline;
@@ -457,11 +481,6 @@ WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
     return msg;
 }
 
-void  ESP8266wifi::debug(Stream &dbgSerial){
-    _dbgSerial = &dbgSerial;
-    flags.debug = true;
-}
-
 byte ESP8266wifi::findString(int timeout,  const char * what){
     return findString(timeout, what, "");
 }
@@ -478,12 +497,12 @@ byte ESP8266wifi::findString(int timeout,  const char * what,  const char * what
     while ((millis() < stop)) {
         while (_serialIn -> available()) {
             c = (_serialIn -> read());
-
+            
             if(flags.debug)
                 _dbgSerial -> print(c);
             else
                 delayMicroseconds(50);//I dont know why ./
-
+            
             if (c == what[nextPosMatch1])
                 ++nextPosMatch1;
             else

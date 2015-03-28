@@ -45,7 +45,13 @@ public:
     /*
      * Will pull resetPin low then high to reset esp8266, connect this pin to CHPD pin
      */
-    ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin, bool echo);
+    ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin);
+    
+    
+    /*
+     * Will pull resetPin low then high to reset esp8266, connect this pin to CHPD pin
+     */
+    ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin, Stream &dbgSerial);
     
     /*
      * Will do hw reset and set inital configuration, will try this HW_RESET_RETRIES times.
@@ -101,8 +107,6 @@ public:
      * Scan for incoming message, do this as often and as long as you can (use as sleep in loop)
      */
     WifiMessage listenForIncomingMessage(int timeoutMillis);
-    void debug(Stream &dbgSerial);
-    
     
 private:
     Stream* _serialIn;

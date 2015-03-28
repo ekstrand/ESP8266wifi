@@ -8,7 +8,7 @@
 SoftwareSerial swSerial(sw_serial_rx_pin, sw_serial_rx_pin);
 
 // the last parameter sets the local echo option for the ESP8266 module..
-ESP8266wifi wifi(swSerial, swSerial, esp8266_reset_pin, true);
+ESP8266wifi wifi(swSerial, swSerial, esp8266_reset_pin, Serial);//adding Serial enabled local echo and wifi debug
 
 String inputString;
 boolean stringComplete = false;
@@ -21,9 +21,6 @@ void setup() {
   while (!Serial)
     ;
   Serial.println("Starting wifi");
-
-  //Set config options
-  wifi.debug(Serial); //Will print everything from esp8266 to Serial stream of you choice
 
   wifi.setTransportToTCP();// this is also default
   // wifi.setTransportToUDP();//Will use UDP when connecting to server, default is TCP
