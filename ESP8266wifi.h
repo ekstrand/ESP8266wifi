@@ -138,7 +138,6 @@ private:
     char msgIn[26]; //buffer for listen method = limit of incoming message..
     
     char buf[26];
-    char buf2[16];
     
     byte readCommand(int timeout, const char* text1 = NULL, const char* text2 = NULL);
 
