@@ -450,8 +450,8 @@ WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
 // NOTE: strings are stored in PROGMEM (auto-copied by this method)
 byte ESP8266wifi::readCommand(int timeout, const char* text1, const char* text2) {
     // setup buffers on stack & copy data from PROGMEM pointers
-    char buf1[16] = {0};
-    char buf2[16] = {0};
+    char buf1[16] = {'\0'};
+    char buf2[16] = {'\0'};
     if (text1 != NULL)
         strcpy_P(buf1, (char *) text1);
     if (text2 != NULL)
