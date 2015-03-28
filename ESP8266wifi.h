@@ -140,8 +140,8 @@ private:
     char buf[26];
     char buf2[16];
     
-    byte findString(int timeout,  const char* what);
-    byte findString(int timeout,  const char* what,  const char* what2);
+    byte readCommand(int timeout, const char* text1 = NULL, const char* text2 = NULL);
+
     void loadString(const char* str, char* out);
     
     Stream* _dbgSerial;

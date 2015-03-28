@@ -117,14 +117,12 @@ bool ESP8266wifi::begin() {
     bool statusOk = false;
     byte i;
     for(i =0; i<HW_RESET_RETRIES; i++){
-        loadString(NO_IP, buf);
-        findString(10, buf); //Cleanup
+        readCommand(10, NO_IP); //Cleanup
         digitalWrite(_resetPin, LOW);
         delay(500);
         digitalWrite(_resetPin, HIGH); // select the radio
         // Look for ready string from wifi module
-        loadString(READY, buf);
-        statusOk = findString(3000, buf) == 1;
+        statusOk = readCommand(3000, READY) == 1;
         if(statusOk)
             break;
     }
@@ -134,9 +132,7 @@ bool ESP8266wifi::begin() {
     //Turn local AP = off
     loadString(CWMODE_1,buf);
     _serialOut -> println(buf);
-    loadString(OK,buf);
-    loadString(NO_CHANGE,buf2);
-    if (findString(1000, buf, buf2) == 0)
+    if (readCommand(1000, OK, NO_CHANGE) == 0)
         return false;
     
     // Set echo on/off
@@ -145,17 +141,13 @@ bool ESP8266wifi::begin() {
     else
         loadString(ATE0,buf);
     _serialOut -> println(buf);
-    loadString(OK,buf);
-    loadString(NO_CHANGE,buf2);
-    if (findString(1000, buf, buf2) == 0)
+    if (readCommand(1000, OK, NO_CHANGE) == 0)
         return false;
     
     // Set mux to enable multiple connections
     loadString(CIPMUX_1,buf);
     _serialOut -> println(buf);
-    loadString(OK,buf);
-    loadString(NO_CHANGE,buf2);
-    flags.started = findString(3000, buf, buf2) > 0;
+    flags.started = readCommand(3000, OK, NO_CHANGE) > 0;
     return flags.started;
 }
 
@@ -196,9 +188,7 @@ bool ESP8266wifi::connectToAP(){
     loadString(DOUBLE_QUOTE,buf);
     _serialOut -> println(buf);
     
-    loadString(OK,buf);
-    loadString(FAIL, buf2);
-    findString(15000, buf, buf2);
+    readCommand(15000, OK, FAIL);
     return isConnectedToAP();
 }
 
@@ -206,12 +196,9 @@ bool ESP8266wifi::isConnectedToAP(){
     loadString(CIFSR,buf);
     _serialOut -> println(buf);
     
-    loadString(NO_IP,buf);
-    loadString(ERROR,buf2);
-    byte code = findString(350, buf, buf2);
+    byte code = readCommand(350, NO_IP, ERROR);
     
-    loadString(OK,buf);
-    findString(10, buf); //cleanup
+    readCommand(10, OK); //cleanup
     return (code == 0);
 }
 
@@ -250,10 +237,7 @@ bool ESP8266wifi::connectToServer(){
     
     _serialOut -> println(_port);
     
-    loadString(LINKED,buf);
-    loadString(ALREADY,buf2);
-    
-    flags.connectedToServer = (findString(10000, buf, buf2) > 0);
+    flags.connectedToServer = (readCommand(10000, LINKED, ALREADY) > 0);
     
     if(flags.connectedToServer)
         serverRetries = 0;
@@ -281,10 +265,7 @@ bool ESP8266wifi::startLocalAPAndServer(){
     loadString(CWMODE_3, buf);
     
     _serialOut -> println(buf);
-    
-    loadString(OK,buf);
-    loadString(NO_CHANGE,buf2);
-    if (!findString(2000, buf,buf2))
+    if (!readCommand(2000, OK, NO_CHANGE))
         return false;
     
     // Configure the soft ap
@@ -305,10 +286,7 @@ bool ESP8266wifi::startLocalAPAndServer(){
     loadString(THREE_COMMA, buf);
     _serialOut -> println(buf);
     
-    loadString(OK,buf);
-    loadString(ERROR,buf2);
-    
-    if(findString(5000, buf, buf2) != 1)
+    if(readCommand(5000, OK, ERROR) != 1)
         return false;
     
     // Start local server
@@ -316,9 +294,7 @@ bool ESP8266wifi::startLocalAPAndServer(){
     _serialOut -> print(buf);
     _serialOut -> println(_localServerPort);
     
-    loadString(OK,buf);
-    loadString(NO_CHANGE,buf2);
-    flags.localAPAndServerRunning = (findString(2000, buf, buf2) > 0);
+    flags.localAPAndServerRunning = (readCommand(2000, OK, NO_CHANGE) > 0);
     return flags.localAPAndServerRunning;
 }
 
@@ -326,11 +302,8 @@ bool ESP8266wifi::stopLocalAPAndServer(){
     //NOT STOPPING SERVER = RESTART..
     loadString(CWMODE_1, buf);
     _serialOut -> println(buf);
-    
-    loadString(OK, buf);
-    loadString(NO_CHANGE, buf2);
-    
-    boolean stopped = (findString(2000, buf, buf2)>0);
+
+    boolean stopped = (readCommand(2000, OK, NO_CHANGE) > 0);
     flags.localAPAndServerRunning = !stopped;
     flags.localAPandServerConfigured = false; //to prevent autostart
     return stopped;
@@ -388,17 +361,13 @@ bool ESP8266wifi::send(char channel, const char * message, bool sendNow){
     loadString(COMMA,buf);
     _serialOut -> print(buf);
     _serialOut -> println(length);
-    loadString(PROMPT,buf);
-    loadString(LINK_IS_NOT,buf2);
-    byte prompt = findString(1000, buf, buf2);
+    byte prompt = readCommand(1000, PROMPT, LINK_IS_NOT);
     if (prompt != 2) {
         if(flags.endSendWithNewline)
             _serialOut -> println(msgOut);
         else
             _serialOut -> print(msgOut);
-        loadString(SEND_OK,buf);
-        loadString(BUSY, buf2);
-        byte sendStatus = findString(5000, buf, buf2);
+        byte sendStatus = readCommand(5000, SEND_OK, BUSY);
         if (sendStatus == 1) {
             msgOut[0] = '\0';
             if(channel == SERVER)
@@ -426,12 +395,9 @@ WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
     msg.hasData = false;
     msg.channel = '-';
     msg.message = msgIn;
-    
-    loadString(IPD,buf);
-    loadString(READY,buf2);
-    
+
     //TODO listen for unlink etc...
-    byte msgOrRestart = findString(timeout, buf, buf2);
+    byte msgOrRestart = readCommand(timeout, IPD, READY);
     buf[0] = '\0';
     
     //Detected a esp8266 restart
@@ -475,50 +441,45 @@ WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
         msg.hasData = true;
         msg.channel = channel;
         msg.message = msgIn;
-        loadString(OK, buf);
-        findString(10, buf); // cleanup after rx
+        readCommand(10, OK); // cleanup after rx
     }
     return msg;
 }
 
-byte ESP8266wifi::findString(int timeout,  const char * what){
-    return findString(timeout, what, "");
-}
+// Reads from serial input until a expected string is found (or until timeout)
+// NOTE: strings are stored in PROGMEM (auto-copied by this method)
+byte ESP8266wifi::readCommand(int timeout, const char* text1, const char* text2) {
+    // setup buffers on stack & copy data from PROGMEM pointers
+    char buf1[16] = {0};
+    char buf2[16] = {0};
+    if (text1 != NULL)
+        strcpy_P(buf1, (char *) text1);
+    if (text2 != NULL)
+        strcpy_P(buf2, (char *) text2);
+    byte len1 = strlen(buf1);
+    byte len2 = strlen(buf2);
+    byte pos1 = 0;
+    byte pos2 = 0;
 
-byte ESP8266wifi::findString(int timeout,  const char * what,  const char * what2) {
+    // read chars until first match or timeout
     unsigned long stop = millis() + timeout;
-    byte nrChars1 = strlen(what);
-    byte nextPosMatch1 = 0;
-    byte nrChars2 = -1;
-    if (strlen(what2) > 0)
-        nrChars2 = strlen(what2);
-    byte nextPosMatch2 = 0;
     char c;
-    while ((millis() < stop)) {
-        while (_serialIn -> available()) {
-            c = (_serialIn -> read());
-            
-            if(flags.debug)
+    do {
+        while (_serialIn->available()) {
+            c = _serialIn->read();
+            if (flags.debug)
                 _dbgSerial -> print(c);
             else
                 delayMicroseconds(50);//I dont know why ./
             
-            if (c == what[nextPosMatch1])
-                ++nextPosMatch1;
-            else
-                nextPosMatch1 = 0;
-            if (strlen(what2) > 0 && c == what2[nextPosMatch2])
-                ++nextPosMatch2;
-            else
-                nextPosMatch2 = 0;
-            if (nextPosMatch1 == nrChars1) {
+            pos1 = (c == buf1[pos1]) ? pos1 + 1 : 0;
+            pos2 = (c == buf2[pos2]) ? pos2 + 1 : 0;
+            if (len1 > 0 && pos1 == len1)
                 return 1;
-            }
-            if (nextPosMatch2 == nrChars2) {
+            if (len2 > 0 && pos2 == len2)
                 return 2;
-            }
         }
         delay(10);
-    }
+    } while (millis() < stop);
     return 0;
 }
