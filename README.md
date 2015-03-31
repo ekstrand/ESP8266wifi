@@ -63,6 +63,10 @@ ESP8266#Module_Pin_Description
 
 **setTransportToTCP() AND setTransportToUDP()** tells the ESP8266 which transport to use when connecting to a server. Default is TCP.
 
+## Disconnecting from a server
+**disconnectFromServer()** tells the ESP8266 to close the server connection
+* **Example:** `wifi.disconnectFromServer();`
+
 ## Sending a message
 **boolean send(char channel, char * message)** sends a message - alias for send(char channel, char * message, true)
 * **channel** Set to **SERVER** if you want to send to server. If we are the server, the value can be between '1'-'3'
