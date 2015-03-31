@@ -149,6 +149,7 @@ bool ESP8266wifi::begin() {
 bool ESP8266wifi::isStarted(){
     return flags.started;
 }
+
 void ESP8266wifi::restart(){
     begin();
     
@@ -160,6 +161,10 @@ void ESP8266wifi::restart(){
     
     if(flags.serverConfigured)
         connectToServer();
+}
+
+bool ESP8266wifi::connectToAP(String& ssid, String& password) {
+    return connectToAP(ssid.c_str(), password.c_str());
 }
 
 bool ESP8266wifi::connectToAP(const char* ssid, const char* password){//TODO make timeout config or parameter??
@@ -193,6 +198,10 @@ void ESP8266wifi::setTransportToUDP(){
 
 void ESP8266wifi::setTransportToTCP(){
     flags.connectToServerUsingTCP = true;
+}
+
+bool ESP8266wifi::connectToServer(String& ip, String& port) {
+    return connectToServer(ip.c_str(), port.c_str());
 }
 
 bool ESP8266wifi::connectToServer(const char* ip, const char* port){//TODO make timeout config or parameter??
@@ -316,6 +325,10 @@ void ESP8266wifi::watchdog(){
 /*
  * Send string (if channel is connected of course)
  */
+bool ESP8266wifi::send(char channel, String& message, bool sendNow) {
+    return send(channel, message.c_str(), sendNow);
+}
+
 bool ESP8266wifi::send(char channel, const char * message, bool sendNow){
     watchdog();
     byte avail = sizeof(msgOut) - strlen(msgOut) - 1;
