@@ -61,7 +61,6 @@ void loop() {
   //Listen for incoming messages and echo back, will wait until a message is received, or max 6000ms..
   WifiMessage in = wifi.listenForIncomingMessage(6000);
   if (in.hasData) {
-
     if (in.channel == SERVER)
       Serial.println("Message from the server:");
     else
@@ -72,6 +71,10 @@ void loop() {
     wifi.send(in.channel, in.message);
     nextPing = millis() + 10000;
   }
+  
+  //If you want do disconnect from the server use:
+  // wifi.disconnectFromServer();
+  
 }
 
 //Listen for serial input from the console

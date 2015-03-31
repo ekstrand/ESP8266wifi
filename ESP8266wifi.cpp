@@ -31,6 +31,7 @@ const char NO_IP[] PROGMEM = "0.0.0.0";
 const char CIPSEND[] PROGMEM = "AT+CIPSEND=";
 const char CIPSERVER[] PROGMEM = "AT+CIPSERVER=1,";
 const char CIPSTART[] PROGMEM = "AT+CIPSTART=4,\"";
+const char CIPCLOSE[] PROGMEM = "AT+CIPCLOSE=4";
 const char TCP[] PROGMEM = "TCP";
 const char UDP[] PROGMEM = "UDP";
 
@@ -201,6 +202,7 @@ bool ESP8266wifi::connectToServer(const char* ip, const char* port){//TODO make 
     return connectToServer();
 }
 
+
 bool ESP8266wifi::connectToServer(){
     writeCommand(CIPSTART);
     if (flags.connectToServerUsingTCP)
@@ -218,6 +220,15 @@ bool ESP8266wifi::connectToServer(){
         serverRetries = 0;
     return flags.connectedToServer;
 }
+
+
+void ESP8266wifi::disconnectFromServer(){
+    flags.connectedToServer = false;
+    flags.serverConfigured = false;//disable reconnect
+    writeCommand(CIPCLOSE);
+    readCommand(2000, OK); //fire and forget in this case..
+}
+
 
 bool ESP8266wifi::isConnectedToServer(){
     if(flags.connectedToServer)

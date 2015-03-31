@@ -76,6 +76,7 @@ public:
     //Default..
     void setTransportToTCP();
     bool connectToServer(const char* ip, const char* port);
+    void disconnectFromServer();
     bool isConnectedToServer();
     
     /*
