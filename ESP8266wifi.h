@@ -64,6 +64,7 @@ public:
      * Connect to AP using wpa encryption
      * (reconnect logic is applied, if conn lost or not established, or esp8266 restarted)
      */
+    bool connectToAP(String& ssid, String& password);
     bool connectToAP(const char* ssid, const char* password);
     bool isConnectedToAP();
     
@@ -75,6 +76,7 @@ public:
     void setTransportToUDP();
     //Default..
     void setTransportToTCP();
+    bool connectToServer(String& ip, String& port);
     bool connectToServer(const char* ip, const char* port);
     void disconnectFromServer();
     bool isConnectedToServer();
@@ -89,15 +91,10 @@ public:
     
     
     /*
-     * Adding message to be sent later
+     * Send string (if channel is connected of course)
      */
-    
-    bool send(char channel, const char * message);
-    
-    /*
-     * Sending string (if channel is connected of course)
-     */
-    bool send(char channel, const char * message, bool sendNow);
+    bool send(char channel, String& message, bool sendNow = true);
+    bool send(char channel, const char * message, bool sendNow = true);
     
     /*
      * Default is true.

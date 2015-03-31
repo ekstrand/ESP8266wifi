@@ -149,6 +149,7 @@ bool ESP8266wifi::begin() {
 bool ESP8266wifi::isStarted(){
     return flags.started;
 }
+
 void ESP8266wifi::restart(){
     begin();
     
@@ -160,6 +161,10 @@ void ESP8266wifi::restart(){
     
     if(flags.serverConfigured)
         connectToServer();
+}
+
+bool ESP8266wifi::connectToAP(String& ssid, String& password) {
+    return connectToAP(ssid.c_str(), password.c_str());
 }
 
 bool ESP8266wifi::connectToAP(const char* ssid, const char* password){//TODO make timeout config or parameter??
@@ -193,6 +198,10 @@ void ESP8266wifi::setTransportToUDP(){
 
 void ESP8266wifi::setTransportToTCP(){
     flags.connectToServerUsingTCP = true;
+}
+
+bool ESP8266wifi::connectToServer(String& ip, String& port) {
+    return connectToServer(ip.c_str(), port.c_str());
 }
 
 bool ESP8266wifi::connectToServer(const char* ip, const char* port){//TODO make timeout config or parameter??
@@ -314,13 +323,16 @@ void ESP8266wifi::watchdog(){
 }
 
 /*
- * Will always send with a linefeed at the end..
+ * Send string (if channel is connected of course)
  */
+bool ESP8266wifi::send(char channel, String& message, bool sendNow) {
+    return send(channel, message.c_str(), sendNow);
+}
+
 bool ESP8266wifi::send(char channel, const char * message, bool sendNow){
     watchdog();
-    byte totalChars = strlen(message) +  strlen(msgOut) + 1; // add one to account for null char...
-    strcat(msgOut, message);
-    msgOut[strlen(msgOut)] = '\0';
+    byte avail = sizeof(msgOut) - strlen(msgOut) - 1;
+    strncat(msgOut, message, avail);
     if (!sendNow)
         return true;
     byte length = strlen(msgOut);
@@ -351,10 +363,6 @@ bool ESP8266wifi::send(char channel, const char * message, bool sendNow){
         flags.connectedToServer = false;
     msgOut[0] = '\0';
     return false;
-}
-
-bool ESP8266wifi::send(char channel, const char * message){
-    return send(channel,message,true);
 }
 
 WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
