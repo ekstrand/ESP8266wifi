@@ -89,15 +89,9 @@ public:
     
     
     /*
-     * Adding message to be sent later
+     * Send string (if channel is connected of course)
      */
-    
-    bool send(char channel, const char * message);
-    
-    /*
-     * Sending string (if channel is connected of course)
-     */
-    bool send(char channel, const char * message, bool sendNow);
+    bool send(char channel, const char * message, bool sendNow = true);
     
     /*
      * Default is true.

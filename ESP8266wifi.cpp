@@ -314,13 +314,12 @@ void ESP8266wifi::watchdog(){
 }
 
 /*
- * Will always send with a linefeed at the end..
+ * Send string (if channel is connected of course)
  */
 bool ESP8266wifi::send(char channel, const char * message, bool sendNow){
     watchdog();
-    byte totalChars = strlen(message) +  strlen(msgOut) + 1; // add one to account for null char...
-    strcat(msgOut, message);
-    msgOut[strlen(msgOut)] = '\0';
+    byte avail = sizeof(msgOut) - strlen(msgOut) - 1;
+    strncat(msgOut, message, avail);
     if (!sendNow)
         return true;
     byte length = strlen(msgOut);
@@ -351,10 +350,6 @@ bool ESP8266wifi::send(char channel, const char * message, bool sendNow){
         flags.connectedToServer = false;
     msgOut[0] = '\0';
     return false;
-}
-
-bool ESP8266wifi::send(char channel, const char * message){
-    return send(channel,message,true);
 }
 
 WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
