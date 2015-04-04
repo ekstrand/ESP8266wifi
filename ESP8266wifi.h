@@ -127,7 +127,7 @@ private:
     char _localAPChannel[3];
     char _localServerPort[6];
     
-    void restart();
+    bool restart();
     
     byte serverRetries;
     void watchdog();

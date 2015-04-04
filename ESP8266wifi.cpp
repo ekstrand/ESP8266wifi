@@ -150,17 +150,11 @@ bool ESP8266wifi::isStarted(){
     return flags.started;
 }
 
-void ESP8266wifi::restart(){
-    begin();
-    
-    if(flags.localAPandServerConfigured)
-        startLocalAPAndServer();
-    
-    if(flags.apConfigured)
-        connectToAP();
-    
-    if(flags.serverConfigured)
-        connectToServer();
+bool ESP8266wifi::restart() {
+    return begin()
+        && (!flags.localAPandServerConfigured || startLocalAPAndServer())
+        && (!flags.apConfigured || connectToAP())
+        && (!flags.serverConfigured || connectToServer());
 }
 
 bool ESP8266wifi::connectToAP(String& ssid, String& password) {
