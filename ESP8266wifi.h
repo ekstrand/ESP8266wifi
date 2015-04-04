@@ -130,7 +130,7 @@ private:
     bool restart();
     
     byte serverRetries;
-    void watchdog();
+    bool watchdog();
     
     char msgOut[26];//buffer for send method
     char msgIn[26]; //buffer for listen method = limit of incoming message..
