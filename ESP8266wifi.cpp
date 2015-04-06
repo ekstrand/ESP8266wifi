@@ -150,17 +150,11 @@ bool ESP8266wifi::isStarted(){
     return flags.started;
 }
 
-void ESP8266wifi::restart(){
-    begin();
-    
-    if(flags.localAPandServerConfigured)
-        startLocalAPAndServer();
-    
-    if(flags.apConfigured)
-        connectToAP();
-    
-    if(flags.serverConfigured)
-        connectToServer();
+bool ESP8266wifi::restart() {
+    return begin()
+        && (!flags.localAPandServerConfigured || startLocalAPAndServer())
+        && (!flags.apConfigured || connectToAP())
+        && (!flags.serverConfigured || connectToServer());
 }
 
 bool ESP8266wifi::connectToAP(String& ssid, String& password) {
@@ -296,30 +290,26 @@ bool ESP8266wifi::isLocalAPAndServerRunning(){
     return flags.localAPAndServerRunning;
 }
 
-void ESP8266wifi::watchdog(){
-    //Give up do a hw reset
-    if(serverRetries >= SERVER_CONNECT_RETRIES_BEFORE_HW_RESET){
-        restart();
-        return;
+// Performs a connect retry (or hardware reset) if not connected
+bool ESP8266wifi::watchdog() {
+    if (serverRetries >= SERVER_CONNECT_RETRIES_BEFORE_HW_RESET) {
+        // give up, do a hardware reset
+        return restart();
     }
-    
-    //Try to start server and or ap if needed
-    if(flags.serverConfigured && !isConnectedToServer()){
-        connectToServer();
+    if (flags.serverConfigured && !flags.connectedToServer) {
         serverRetries++;
-        //If still not connected!? try to reconnect to the ap
-        if(!isConnectedToServer() && !isConnectedToAP() && flags.apConfigured){
-            boolean apOk  = connectToAP();
-            if(!apOk)//If not ok yet, try again..
+        if (flags.apConfigured && !isConnectedToAP()) {
+            if (!connectToAP()) {
+                // wait a bit longer, then check again
                 delay(2000);
-            //If connection to AP failes, try a chip reset
-            if(!apOk && !isConnectedToAP()){
-                restart();
-            }else{//Success we managed to connect to ap! Try server again
-                connectToServer();
+                if (!isConnectedToAP()) {
+                    return restart();
+                }
             }
         }
+        return connectToServer();
     }
+    return true;
 }
 
 /*
