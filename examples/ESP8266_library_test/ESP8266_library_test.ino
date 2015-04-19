@@ -1,9 +1,9 @@
 #include <SoftwareSerial.h>
 #include <ESP8266wifi.h>
 
-#define sw_serial_rx_pin 4 //  Connect this pin to TX on the esp8266
-#define sw_serial_tx_pin 6 //  Connect this pin to TX on the esp8266
-#define esp8266_reset_pin 5 // Connect this pin to CH_PD on the esp8266, not reset. (let reset be unconnected)
+#define sw_serial_rx_pin A6 //  Connect this pin to TX on the esp8266
+#define sw_serial_tx_pin A7//  Connect this pin to RX on the esp8266
+#define esp8266_reset_pin A5 // Connect this pin to CH_PD on the esp8266, not reset. (let reset be unconnected)
 
 SoftwareSerial swSerial(sw_serial_rx_pin, sw_serial_tx_pin);
 
