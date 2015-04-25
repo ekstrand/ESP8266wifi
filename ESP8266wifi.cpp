@@ -24,7 +24,7 @@ const char LINK_IS_NOT[] PROGMEM = "link is not";
 const char PROMPT[] PROGMEM = ">";
 const char BUSY[] PROGMEM =  "busy";
 const char LINKED[] PROGMEM = "Linked";
-const char ALREADY[] PROGMEM = "ALREAY";//yes typo in firmware..
+const char ALREADY[] PROGMEM = "ALREADY";//yes typo in firmware..
 const char READY[] PROGMEM = "ready";
 const char NO_IP[] PROGMEM = "0.0.0.0";
 
