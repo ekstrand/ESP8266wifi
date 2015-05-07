@@ -11,7 +11,7 @@
 #define ESP8266wifi_h
 
 #define HW_RESET_RETRIES 3
-#define SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 30
+#define SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 3
 
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
