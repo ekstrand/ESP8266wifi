@@ -35,7 +35,18 @@ public:
 
 struct Flags   // 1 byte value (on a system where 8 bits is a byte
 {
-    bool started:1, echoOnOff:1, debug:1, serverConfigured:1, connectedToServer:1, apConfigured:1, localAPandServerConfigured:1, localAPAndServerRunning:1, endSendWithNewline:1, connectToServerUsingTCP:1;
+    bool started:1, 
+         echoOnOff:1, 
+         debug:1, 
+         serverConfigured:1,            // true if a connection to a remote server is configured
+         connectedToServer:1,           // true if a connection to a remote server is established
+         apConfigured:1,                // true if the module is configured as a client station
+         localApConfigured:1,
+         localServerConfigured:1,
+         localApRunning:1, 
+         localServerRunning:1, 
+         endSendWithNewline:1, 
+         connectToServerUsingTCP:1;
 };
 
 class ESP8266wifi
@@ -88,7 +99,11 @@ public:
      * (reconnect logic is applied, if conn lost or not established, or esp8266 restarted)
      */
     bool startLocalAPAndServer(const char* ssid, const char* password, const char* channel,const char* port);
+    bool startLocalAP(const char* ssid, const char* password, const char* channel);
+    bool startLocalServer(const char* port);
     bool stopLocalAPAndServer();
+    bool stopLocalAP();
+    bool stopLocalServer();
     bool isLocalAPAndServerRunning();
     
     
@@ -123,7 +138,8 @@ private:
     char _ssid[16];
     char _password[16];
     
-    bool startLocalAPAndServer();
+    bool startLocalAp();
+    bool startLocalServer();
     char _localAPSSID[16];
     char _localAPPassword[16];
     char _localAPChannel[3];
