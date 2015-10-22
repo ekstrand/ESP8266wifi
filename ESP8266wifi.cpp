@@ -59,6 +59,9 @@ const char THREE_COMMA[] PROGMEM = ",3";
 const char DOUBLE_QUOTE[] PROGMEM = "\"";
 const char EOL[] PROGMEM = "\n";
 
+const char STAIP[] PROGMEM = "STAIP,\"";
+const char STAMAC[] PROGMEM = "STAMAC,\"";
+
 ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin) {
     _serialIn = &serialIn;
     _serialOut = &serialOut;
@@ -184,6 +187,58 @@ bool ESP8266wifi::isConnectedToAP(){
     byte code = readCommand(350, NO_IP, ERROR);
     readCommand(10, OK); //cleanup
     return (code == 0);
+}
+
+char* ESP8266wifi::getIP(){
+    msgIn[0] = '\0';
+    writeCommand(CIFSR, EOL);
+    byte code = readCommand(1000, STAIP, ERROR);
+    if(code == 1) {
+        // found staip
+        byte index=0;
+        while (_serialIn -> available()) {
+            char c = _serialIn -> read();
+            if (flags.debug)
+                _dbgSerial -> print(c);
+            delayMicroseconds(50);
+            if (c == '"') {
+                msgIn[index] = '\0';
+                break;
+            }
+            msgIn[index] = c;
+            index++;
+        }
+        readCommand(10, OK, ERROR);
+        return &msgIn[0];
+    }
+    readCommand(1000, OK, ERROR);
+    return &msgIn[0];
+}
+
+char* ESP8266wifi::getMAC(){
+    msgIn[0] = '\0';
+    writeCommand(CIFSR, EOL);
+    byte code = readCommand(1000, STAMAC, ERROR);
+    if(code == 1) {
+        // found staip
+        byte index=0;
+        while (_serialIn -> available()) {
+            char c = _serialIn -> read();
+            if (flags.debug)
+                _dbgSerial -> print(c);
+            delayMicroseconds(50);
+            if (c == '"') {
+                msgIn[index] = '\0';
+                break;
+            }
+            msgIn[index] = c;
+            index++;
+        }
+        readCommand(10, OK, ERROR);
+        return &msgIn[0];
+    }
+    readCommand(1000, OK, ERROR);
+    return &msgIn[0];
 }
 
 void ESP8266wifi::setTransportToUDP(){
