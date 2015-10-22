@@ -67,6 +67,8 @@ public:
     bool connectToAP(String& ssid, String& password);
     bool connectToAP(const char* ssid, const char* password);
     bool isConnectedToAP();
+    char* getIP();
+    char* getMAC();
     
     /*
      * Connecting with TCP to server
