@@ -29,7 +29,8 @@ const char READY[] PROGMEM = "ready";
 const char NO_IP[] PROGMEM = "0.0.0.0";
 
 const char CIPSEND[] PROGMEM = "AT+CIPSEND=";
-const char CIPSERVER[] PROGMEM = "AT+CIPSERVER=1,";
+const char CIPSERVERSTART[] PROGMEM = "AT+CIPSERVER=1,";
+const char CIPSERVERSTOP[] PROGMEM = "AT+CIPSERVER=0";
 const char CIPSTART[] PROGMEM = "AT+CIPSTART=4,\"";
 const char CIPCLOSE[] PROGMEM = "AT+CIPCLOSE=4";
 const char TCP[] PROGMEM = "TCP";
@@ -73,14 +74,14 @@ ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin) {
     flags.connectToServerUsingTCP = true;
     flags.endSendWithNewline = true;
     flags.started = false;
-    flags.localAPandServerConfigured = false;
+    flags.localServerConfigured = false;
+    flags.localApConfigured = false;
     flags.apConfigured = false;
     flags.serverConfigured = false;
     
     flags.debug = false;
     flags.echoOnOff = false;
 }
-
 
 ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin, Stream &dbgSerial) {
     _serialIn = &serialIn;
@@ -93,7 +94,8 @@ ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin, Str
     flags.connectToServerUsingTCP = true;
     flags.endSendWithNewline = true;
     flags.started = false;
-    flags.localAPandServerConfigured = false;
+    flags.localServerConfigured = false;
+    flags.localApConfigured = false;
     flags.apConfigured = false;
     flags.serverConfigured = false;
     
@@ -111,7 +113,8 @@ bool ESP8266wifi::begin() {
     msgOut[0] = '\0';
     msgIn[0] = '\0';
     flags.connectedToServer = false;
-    flags.localAPAndServerRunning = false;
+    flags.localServerConfigured = false;
+    flags.localApConfigured = false;
     serverRetries = 0;
     
     //Do a HW reset
@@ -155,7 +158,8 @@ bool ESP8266wifi::isStarted(){
 
 bool ESP8266wifi::restart() {
     return begin()
-        && (!flags.localAPandServerConfigured || startLocalAPAndServer())
+        && (!flags.localApConfigured || startLocalAp())
+        && (!flags.localServerConfigured || startLocalServer())
         && (!flags.apConfigured || connectToAP())
         && (!flags.serverConfigured || connectToServer());
 }
@@ -300,11 +304,36 @@ bool ESP8266wifi::startLocalAPAndServer(const char* ssid, const char* password, 
     strncpy(_localAPChannel, channel, sizeof _localAPChannel);
     strncpy(_localServerPort, port, sizeof _localServerPort);
     
-    flags.localAPandServerConfigured = true;
-    return startLocalAPAndServer();
+    flags.localApConfigured = true;
+    flags.localServerConfigured = true;
+    return startLocalAp() && startLocalServer();
 }
 
-bool ESP8266wifi::startLocalAPAndServer(){
+bool ESP8266wifi::startLocalAP(const char* ssid, const char* password, const char* channel){
+    strncpy(_localAPSSID, ssid, sizeof _localAPSSID);
+    strncpy(_localAPPassword, password, sizeof _localAPPassword);
+    strncpy(_localAPChannel, channel, sizeof _localAPChannel);
+
+    flags.localApConfigured = true;
+    return startLocalAp();
+}
+
+bool ESP8266wifi::startLocalServer(const char* port) {
+    strncpy(_localServerPort, port, sizeof _localServerPort);
+    flags.localServerConfigured = true;
+    return startLocalServer();
+}
+
+bool ESP8266wifi::startLocalServer(){
+    // Start local server
+    writeCommand(CIPSERVERSTART);
+    _serialOut -> println(_localServerPort);
+    
+    flags.localServerRunning = (readCommand(2000, OK, NO_CHANGE) > 0);
+    return flags.localServerRunning;
+}
+
+bool ESP8266wifi::startLocalAp(){
     // Start local ap mode (eg both local ap and ap)
     writeCommand(CWMODE_3, EOL);
     if (!readCommand(2000, OK, NO_CHANGE))
@@ -319,30 +348,33 @@ bool ESP8266wifi::startLocalAPAndServer(){
     _serialOut -> print(_localAPChannel);
     writeCommand(THREE_COMMA, EOL);
     
-    if(readCommand(5000, OK, ERROR) != 1)
-        return false;
-    
-    // Start local server
-    writeCommand(CIPSERVER);
-    _serialOut -> println(_localServerPort);
-    
-    flags.localAPAndServerRunning = (readCommand(2000, OK, NO_CHANGE) > 0);
-    return flags.localAPAndServerRunning;
+    flags.localApRunning = (readCommand(5000, OK, ERROR) == 1);
+    return flags.localApRunning;
 }
 
-bool ESP8266wifi::stopLocalAPAndServer(){
-    //NOT STOPPING SERVER = RESTART..
-    writeCommand(CWMODE_1, EOL);
-
+bool ESP8266wifi::stopLocalServer(){
+    writeCommand(CIPSERVERSTOP, EOL);
     boolean stopped = (readCommand(2000, OK, NO_CHANGE) > 0);
-    flags.localAPAndServerRunning = !stopped;
-    flags.localAPandServerConfigured = false; //to prevent autostart
+    flags.localServerRunning = !stopped;
+    flags.localServerConfigured = false; //to prevent autostart
     return stopped;
 }
 
+bool ESP8266wifi::stopLocalAP(){
+    writeCommand(CWMODE_1, EOL);
+
+    boolean stopped = (readCommand(2000, OK, NO_CHANGE) > 0);
+    flags.localApRunning = !stopped;
+    flags.localApConfigured = false; //to prevent autostart
+    return stopped;
+}
+
+bool ESP8266wifi::stopLocalAPAndServer(){
+    return stopLocalAP() && stopLocalServer();
+}
 
 bool ESP8266wifi::isLocalAPAndServerRunning(){
-    return flags.localAPAndServerRunning;
+    return flags.localApRunning & flags.localServerRunning;
 }
 
 // Performs a connect retry (or hardware reset) if not connected
