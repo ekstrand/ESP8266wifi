@@ -22,13 +22,13 @@ A simple ESP8266 Arduino library with built in re-connect functionality.
 **ESP8266wifi(Stream serialIn, Stream serialOut, byte resetPin)**
 * **serialIn** this object is used to read from the ESP8266, you can use either hardware or software serial
 * **serialOut** this object is used to write to the ESP8266, you can use either hardware or software serial
-* **resetPin** this pin will be pulled low then high to reset the ESP8266. It is assumed that a the CH_PD pin is connected the this pin. See pinout and more at: http://www.electrodragon.com/w/ESP8266#Module_Pin_Description
+* **resetPin** this pin will be pulled low then high to reset the ESP8266. It is assumed that a the CH_PD pin is connected the this pin. See pin out and more at: http://www.electrodragon.com/w/ESP8266#Module_Pin_Description
 * **Example:** ```ESP8266wifi wifi(swSerial, swSerial, 10);```
 
 **ESP8266wifi(Stream serialIn, Stream serialOut, byte resetPin, Stream debugSerial)**
 * **serialIn** this object is used to read from the ESP8266, you can use either hardware or software serial
 * **serialOut** this object is used to write to the ESP8266, you can use either hardware or software serial
-* **resetPin** this pin will be pulled low then high to reset the ESP8266. It is assumed that a the CH_PD pin is connected the this pin. See pinout and more at: http://www.electrodragon.com/w/
+* **resetPin** this pin will be pulled low then high to reset the ESP8266. It is assumed that a the CH_PD pin is connected the this pin. See pin out and more at: http://www.electrodragon.com/w/
 ESP8266#Module_Pin_Description
 * **debugSerial** enables wifi debug and local echo to Serial (could be hw or sw)
 * **Example:** ```ESP8266wifi wifi(swSerial, swSerial, 10, Serial);```
@@ -41,9 +41,9 @@ ESP8266#Module_Pin_Description
 
 ## Connecting to an access point
 **boolean connectToAP(char * ssid, char*  password)** tells the ESP8266 to connect to an accesspoint
-* **ssid** the ssid (station name) to be used. Note that this method uses char arrays as input. See http://arduino.cc/en/Reference/StringToCharArray for howto convert an arduino stringobject to a char array (max 15 chars)
-* **password** the accesspoint password wpa/wpa2 is assumed (max 15 chars)
-* **return** will return a true if a valid IP was received within the timelimit (15 seconds)
+* **ssid** the ssid (station name) to be used. Note that this method uses char arrays as input. See http://arduino.cc/en/Reference/StringToCharArray for how to convert an arduino string object to a char array (max 15 chars)
+* **password** the access point password wpa/wpa2 is assumed (max 15 chars)
+* **return** will return a true if a valid IP was received within the time limit (15 seconds)
 * **Example:** `boolean apConnected = wifi.connectToAP("myaccesspoint", "password123");`
 
 **boolean isConnectedToAP()** checks if the module is connected with a valid IP
@@ -53,7 +53,7 @@ ESP8266#Module_Pin_Description
 ## Connecting to a server
 **boolean connectToServer(char* ip, char* port)** tells the ESP8266 to open a connection to a server
 * **ip** the IP-address of the server to connect to
-* **port** the portnumber to be used
+* **port** the port number to be used
 * **return** true if connection is established within 5 seconds
 * **Example:** `boolean serverConnected =  wifi.connectToServer("192.168.5.123", "2121");`
 
@@ -104,9 +104,9 @@ void loop(){
         Serial.print("Incoming message:");
         Serial.println(in.message);
         if(in.channel == SERVER)
-            Serial.println("From server);
+            Serial.println("From server");
         else{
-            Serial.print("From channel:);
+            Serial.print("From channel:");
             Serial.println(in.channel);
         }
     }
@@ -138,11 +138,11 @@ Note: It is really only the send method that can detect a lost connection to the
 ## Avanced configuration
 In ESP8266wifi.h you can change some stuff:
 * **HW_RESET_RETRIES 3** - is the maximum number of times begin() will try to start the ESP8266 module
-* **SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 30** - is the nr of time the watchdog will try to establish connection to a server before a harware reset of the ESP8266 is performed
+* **SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 30** - is the nr of time the watchdog will try to establish connection to a server before a hardware reset of the ESP8266 is performed
 * The maximum number of characters for incoming and outgoing messages can be changes by editing:
     * char msgOut[26];
     * char msgIn[26];
-* If the limit for ssid and password lenght does not suite you, please change:
+* If the limit for ssid and password length does not suite you, please change:
     * char _ssid[16];
     * char _password[16];
     *  char _localAPSSID[16];
