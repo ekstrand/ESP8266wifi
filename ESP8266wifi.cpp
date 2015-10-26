@@ -552,4 +552,3 @@ byte ESP8266wifi::readCommand(int timeout, const char* text1, const char* text2)
     } while (millis() < stop);
     return 0;
 }
-
