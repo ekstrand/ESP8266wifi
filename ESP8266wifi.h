@@ -155,6 +155,7 @@ private:
 
     void writeCommand(const char* text1, const char* text2 = NULL);
     byte readCommand(int timeout, const char* text1 = NULL, const char* text2 = NULL);
+    byte readBuffer(char* buf, byte count, char delim = '\0');
     char readChar();
 
     Stream* _dbgSerial;

@@ -197,17 +197,9 @@ char* ESP8266wifi::getIP(){
     msgIn[0] = '\0';
     writeCommand(CIFSR, EOL);
     byte code = readCommand(1000, STAIP, ERROR);
-    if(code == 1) {
+    if (code == 1) {
         // found staip
-        byte index=0;
-        while (_serialIn -> available()) {
-            char c = readChar();
-            if (c == '"')
-                break;
-            else
-                msgIn[index++] = c;
-        }
-        msgIn[index] = '\0';
+        readBuffer(&msgIn[0], sizeof(msgIn) - 1, '"');
         readCommand(10, OK, ERROR);
         return &msgIn[0];
     }
@@ -219,17 +211,9 @@ char* ESP8266wifi::getMAC(){
     msgIn[0] = '\0';
     writeCommand(CIFSR, EOL);
     byte code = readCommand(1000, STAMAC, ERROR);
-    if(code == 1) {
-        // found staip
-        byte index=0;
-        while (_serialIn -> available()) {
-            char c = readChar();
-            if (c == '"')
-                break;
-            else
-                msgIn[index++] = c;
-        }
-        msgIn[index] = '\0';
+    if (code == 1) {
+        // found stamac
+        readBuffer(&msgIn[0], sizeof(msgIn) - 1, '"');
         readCommand(10, OK, ERROR);
         return &msgIn[0];
     }
@@ -456,28 +440,13 @@ WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
     //Message received..
     else if (msgOrRestart == 1) {
         char channel = readChar();
-        if(channel == SERVER)
+        if (channel == SERVER)
             flags.connectedToServer = true;
-        readChar(); // removing commma
-        byte length = 0;
-        while (_serialIn -> available()) {
-            char c = readChar();
-            if (c == ':')
-                break;
-            else
-                buf[length++] = c;
-        }
-        //Extract the number of chars...
-        buf[length] = '\0';
-        length = atoi(buf);
-        byte i;
-        for (i = 0; i < length; i++) {
-            if (sizeof(msgIn) - 2 >= i) // Only read until buffer is full - null char
-                msgIn[i] = readChar();
-            else
-                break;
-        }
-        msgIn[i] = '\0'; //terminate string
+        readChar(); // removing comma
+        readBuffer(&buf[0], sizeof(buf) - 1, ':'); // read char count
+        readChar(); // removing ':' delim
+        byte length = atoi(buf);
+        readBuffer(&msgIn[0], min(length, sizeof(msgIn) - 1));
         msg.hasData = true;
         msg.channel = channel;
         msg.message = msgIn;
@@ -529,6 +498,18 @@ byte ESP8266wifi::readCommand(int timeout, const char* text1, const char* text2)
         delay(10);
     } while (millis() < stop);
     return 0;
+}
+
+// Reads count chars to a buffer, or until delim char is found
+byte ESP8266wifi::readBuffer(char* buf, byte count, char delim) {
+    byte pos = 0;
+    while (_serialIn->available() && pos < count) {
+        if (_serialIn->peek() == delim)
+            break;
+        buf[pos++] = readChar();
+    }
+    buf[pos] = '\0';
+    return pos;
 }
 
 // Reads a single char from serial input (with debug printout if configured)
