@@ -27,6 +27,7 @@
 #include "HardwareSerial.h"
 
 #define SERVER '4'
+#define MAX_CONNECTIONS 3
 
 struct WifiMessage{
 public:
@@ -38,7 +39,7 @@ public:
 struct WifiConnection{
 public:
     char channel;
-    bool status:1;
+    bool connected:1;
 };
 
 struct Flags   // 1 byte value (on a system where 8 bits is a byte
@@ -130,8 +131,9 @@ public:
      * Scan for incoming message, do this as often and as long as you can (use as sleep in loop)
      */
     WifiMessage listenForIncomingMessage(int timeoutMillis);
-    bool newConnection(char *channel);
-    byte checkConnection(char *channel);
+    WifiMessage getIncomingMessage(void);
+    bool isConnection(void);
+    bool checkConnections(WifiConnection **pConnections);
     
 private:
     Stream* _serialIn;
@@ -154,6 +156,7 @@ private:
     char _localAPPassword[16];
     char _localAPChannel[3];
     char _localServerPort[6];
+    WifiConnection _connections[MAX_CONNECTIONS];
     
     bool restart();
     

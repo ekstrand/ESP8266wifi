@@ -1,5 +1,5 @@
 //
-//  esp8266wifi.cpp
+  //  esp8266wifi.cpp
 //
 //
 //  Created by Jonas Ekstrand on 2015-02-20.
@@ -83,6 +83,11 @@ ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin) {
     
     flags.debug = false;
     flags.echoOnOff = false;
+
+    for (int i = 0; i < MAX_CONNECTIONS; i++) {
+      _connections[i].channel = i + 0x30; // index to ASCII 
+      _connections[i].connected = false;
+    }
 }
 
 ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin, Stream &dbgSerial) {
@@ -104,6 +109,11 @@ ESP8266wifi::ESP8266wifi(Stream &serialIn, Stream &serialOut, byte resetPin, Str
     _dbgSerial = &dbgSerial;
     flags.debug = true;
     flags.echoOnOff = true;    
+
+    for (int i = 0; i < MAX_CONNECTIONS; i++) {
+      _connections[i].channel = i + 0x30; // index to ASCII 
+      _connections[i].connected = false;
+    }
 }
 
 
@@ -416,59 +426,25 @@ bool ESP8266wifi::send(char channel, const char * message, bool sendNow){
     //else
     if(channel == SERVER)
         flags.connectedToServer = false;
+    else 
+        _connections[channel-0x30].connected = false;
     msgOut[0] = '\0';
     return false;
 }
 
-bool ESP8266wifi::newConnection(char *channel) {
-    watchdog();
-    // setup buffers on stack & copy data from PROGMEM pointers
-    char buf1[16] = {'\0'};
-    char buf2[16] = {'\0'};
-    strcpy_P(buf1, CONNECT);
-    strcpy_P(buf2, READY);
-    byte len1 = strlen(buf1);
-    byte len2 = strlen(buf2);
-    byte pos = 0;
-    byte pos1 = 0;
-    byte pos2 = 0;
-    byte ret = 0;
-    char ch = '-';
-    bool connection = false;
+// Checks to see if there is a client connection
+bool ESP8266wifi::isConnection(void) {
+    WifiConnection *connections;
 
-    // unload buffer and check match
-    while (_serialIn->available()) {
-        char c = readChar();
-        if (pos == 0) {
-          ch = c;
-        }
-        pos++;
-        pos1 = (c == buf1[pos1]) ? pos1 + 1 : 0;
-        pos2 = (c == buf2[pos2]) ? pos2 + 1 : 0;
-        if (len1 > 0 && pos1 == len1) {
-            ret = 1;
-            break;
-        }
-        if (len2 > 0 && pos2 == len2) {
-            ret = 2;
-            break;
-        }
-    }
+    // check channel status
+    checkConnections(&connections);
 
-    if (ret == 2)
-      restart();
-
-    if (ret == 1) {
-      connection = true;
-      *channel = ch;
-      if (ch == SERVER)
-          flags.connectedToServer = true;
-    } 
-
-    return connection;
+    // return the first channel, assume single connection use
+    return connections[0].connected;
 }
 
-byte ESP8266wifi::checkConnection(char *channel) {
+// Updates private connections struct and make passed pointer point to data
+bool ESP8266wifi::checkConnections(WifiConnection **pConnections) {
     watchdog();
     // setup buffers on stack & copy data from PROGMEM pointers
     char buf1[16] = {'\0'};
@@ -486,7 +462,7 @@ byte ESP8266wifi::checkConnection(char *channel) {
     byte pos3 = 0;
     byte ret = 0;
     char ch = '-';
-    bool connection = false;
+    char buf[16] = {'\0'};
 
     // unload buffer and check match
     while (_serialIn->available()) {
@@ -512,28 +488,31 @@ byte ESP8266wifi::checkConnection(char *channel) {
         }
     }
 
-    // reset
     if (ret == 2)
       restart();
 
     // new connection
     if (ret == 1) {
-      connection = true;
-      *channel = ch;
+      _connections[ch-0x30].connected = true;
+      *pConnections = _connections;
       if (ch == SERVER)
           flags.connectedToServer = true;
+      return 1;
     } 
 
     // channel disconnected
-    else if ((ret == 3) && (ch == *channel)) {
-      connection = false;
+    if (ret == 3) {
+      _connections[ch-0x30].connected = false;
+      *pConnections = _connections;
       if (ch == SERVER)
           flags.connectedToServer = false;
+      return 0;
     }
 
-    return ret;
+    // nothing has changed
+    *pConnections = _connections;
+    return 0;
 }
-
 
 WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
     watchdog();
@@ -548,6 +527,43 @@ WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
 
     //TODO listen for unlink etc...
     byte msgOrRestart = readCommand(timeout, IPD, READY);
+    
+    //Detected a esp8266 restart
+    if (msgOrRestart == 2){
+        restart();
+        return msg;
+    }
+    //Message received..
+    else if (msgOrRestart == 1) {
+        char channel = readChar();
+        if (channel == SERVER)
+            flags.connectedToServer = true;
+        readChar(); // removing comma
+        readBuffer(&buf[0], sizeof(buf) - 1, ':'); // read char count
+        readChar(); // removing ':' delim
+        byte length = atoi(buf);
+        readBuffer(&msgIn[0], min(length, sizeof(msgIn) - 1));
+        msg.hasData = true;
+        msg.channel = channel;
+        msg.message = msgIn;
+        readCommand(10, OK); // cleanup after rx
+    }
+    return msg;
+}
+
+WifiMessage ESP8266wifi::getIncomingMessage(void) {
+    watchdog();
+    char buf[16] = {'\0'};
+    msgIn[0] = '\0';
+    
+    static WifiMessage msg;
+    
+    msg.hasData = false;
+    msg.channel = '-';
+    msg.message = msgIn;
+
+    //TODO listen for unlink etc...
+    byte msgOrRestart = readCommand(IPD, READY);
     
     //Detected a esp8266 restart
     if (msgOrRestart == 2){
@@ -617,6 +633,7 @@ byte ESP8266wifi::readCommand(int timeout, const char* text1, const char* text2)
     return 0;
 }
 
+// Unload buffer without delay
 byte ESP8266wifi::readCommand(const char* text1, const char* text2) {
     // setup buffers on stack & copy data from PROGMEM pointers
     char buf1[16] = {'\0'};
