@@ -13,6 +13,9 @@
 #define HW_RESET_RETRIES 3
 #define SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 3
 
+#define CONN_NEW 1
+#define CONN_CLOSED 3
+
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
 #else
@@ -25,12 +28,17 @@
 
 #define SERVER '4'
 
-
 struct WifiMessage{
 public:
     bool hasData:1;
     char channel;
     char * message;
+};
+
+struct WifiConnection{
+public:
+    char channel;
+    bool status:1;
 };
 
 struct Flags   // 1 byte value (on a system where 8 bits is a byte
@@ -122,6 +130,8 @@ public:
      * Scan for incoming message, do this as often and as long as you can (use as sleep in loop)
      */
     WifiMessage listenForIncomingMessage(int timeoutMillis);
+    bool newConnection(char *channel);
+    byte checkConnection(char *channel);
     
 private:
     Stream* _serialIn;
@@ -155,6 +165,7 @@ private:
 
     void writeCommand(const char* text1, const char* text2 = NULL);
     byte readCommand(int timeout, const char* text1 = NULL, const char* text2 = NULL);
+    byte readCommand(const char* text1, const char* text2); 
     byte readBuffer(char* buf, byte count, char delim = '\0');
     char readChar();
 
