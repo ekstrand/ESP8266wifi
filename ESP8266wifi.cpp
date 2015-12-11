@@ -51,7 +51,7 @@ const char ATE1[] PROGMEM = "ATE1";
 
 const char CWSAP[] PROGMEM = "AT+CWSAP=\"";
 
-const char IPD[] PROGMEM = "+IPD,";
+const char IPD[] PROGMEM = "IPD,";
 const char CONNECT[] PROGMEM = "CONNECT";
 const char CLOSED[] PROGMEM = "CLOSED";
 
@@ -436,11 +436,8 @@ bool ESP8266wifi::send(char channel, const char * message, bool sendNow){
 bool ESP8266wifi::isConnection(void) {
     WifiConnection *connections;
 
-    // check channel status
-    checkConnections(&connections);
-
     // return the first channel, assume single connection use
-    return connections[0].connected;
+    return checkConnections(&connections);
 }
 
 // Updates private connections struct and make passed pointer point to data
@@ -462,29 +459,34 @@ bool ESP8266wifi::checkConnections(WifiConnection **pConnections) {
     byte pos3 = 0;
     byte ret = 0;
     char ch = '-';
-    char buf[16] = {'\0'};
 
     // unload buffer and check match
     while (_serialIn->available()) {
         char c = readChar();
-        if (pos == 0) {
-          ch = c;
-        }
-        pos++;
-        pos1 = (c == buf1[pos1]) ? pos1 + 1 : 0;
-        pos2 = (c == buf2[pos2]) ? pos2 + 1 : 0;
-        pos3 = (c == buf3[pos3]) ? pos3 + 1 : 0;
-        if (len1 > 0 && pos1 == len1) {
-            ret = 1;
+        // skip white space
+        if (c != ' ') {
+          // get out of here if theres a message
+          if (c == '+')
             break;
-        }
-        if (len2 > 0 && pos2 == len2) {
-            ret = 2;
-            break;
-        }
-        if (len3 > 0 && pos3 == len3) {
-            ret = 3;
-            break;
+          // first char is channel
+          if (pos == 0)
+            ch = c;
+          pos++;
+          pos1 = (c == buf1[pos1]) ? pos1 + 1 : 0;
+          pos2 = (c == buf2[pos2]) ? pos2 + 1 : 0;
+          pos3 = (c == buf3[pos3]) ? pos3 + 1 : 0;
+          if (len1 > 0 && pos1 == len1) {
+              ret = 1;
+              break;
+          }
+          if (len2 > 0 && pos2 == len2) {
+              ret = 2;
+              break;
+          }
+          if (len3 > 0 && pos3 == len3) {
+              ret = 3;
+              break;
+          }
         }
     }
 
@@ -509,9 +511,9 @@ bool ESP8266wifi::checkConnections(WifiConnection **pConnections) {
       return 0;
     }
 
-    // nothing has changed
+    // nothing has changed return single connection status
     *pConnections = _connections;
-    return 0;
+    return _connections[0].connected;
 }
 
 WifiMessage ESP8266wifi::listenForIncomingMessage(int timeout){
@@ -562,8 +564,8 @@ WifiMessage ESP8266wifi::getIncomingMessage(void) {
     msg.channel = '-';
     msg.message = msgIn;
 
-    //TODO listen for unlink etc...
-    byte msgOrRestart = readCommand(IPD, READY);
+    // See if a message has come in (block 1s otherwise misses?)
+    byte msgOrRestart = readCommand(10, IPD, READY);
     
     //Detected a esp8266 restart
     if (msgOrRestart == 2){

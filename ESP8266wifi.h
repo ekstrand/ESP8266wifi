@@ -13,9 +13,6 @@
 #define HW_RESET_RETRIES 3
 #define SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 3
 
-#define CONN_NEW 1
-#define CONN_CLOSED 3
-
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
 #else
@@ -28,6 +25,8 @@
 
 #define SERVER '4'
 #define MAX_CONNECTIONS 3
+
+#define MSG_BUFFER_MAX 128
 
 struct WifiMessage{
 public:
@@ -163,8 +162,8 @@ private:
     byte serverRetries;
     bool watchdog();
     
-    char msgOut[26];//buffer for send method
-    char msgIn[26]; //buffer for listen method = limit of incoming message..
+    char msgOut[MSG_BUFFER_MAX];//buffer for send method
+    char msgIn[MSG_BUFFER_MAX]; //buffer for listen method = limit of incoming message..
 
     void writeCommand(const char* text1, const char* text2 = NULL);
     byte readCommand(int timeout, const char* text1 = NULL, const char* text2 = NULL);
