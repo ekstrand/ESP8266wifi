@@ -636,7 +636,7 @@ byte ESP8266wifi::readCommand(int timeout, const char* text1, const char* text2)
 }
 
 // Unload buffer without delay
-byte ESP8266wifi::readCommand(const char* text1, const char* text2) {
+/*byte ESP8266wifi::readCommand(const char* text1, const char* text2) {
     // setup buffers on stack & copy data from PROGMEM pointers
     char buf1[16] = {'\0'};
     char buf2[16] = {'\0'};
@@ -660,7 +660,7 @@ byte ESP8266wifi::readCommand(const char* text1, const char* text2) {
             return 2;
     }
     return 0;
-}
+}*/
 
 // Reads count chars to a buffer, or until delim char is found
 byte ESP8266wifi::readBuffer(char* buf, byte count, char delim) {
