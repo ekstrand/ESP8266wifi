@@ -89,6 +89,40 @@ wifi.send(SERVER, "fantastic!", true); // ie wifi.send(SERVER, "fantastic!");
 * **endSendWithNewline** sent messages with print instead of println
 * **Example:** `wifi.endSendWithNewline(false);`
 
+## Checking Client Connections
+**boolean checkConnections(&connections)** - Updates pre-initialised pointer to
+WifiConnection \*connections.
+* **return** true if client is connected
+* Updated pointer is array of 3 connections:
+  * **boolean connected** true if connected.
+  * **char channel** channel number, can be passed to `send`.
+* **Example:**
+```
+WifiConnection *connections;
+
+wifi.checkConnections(&connections);
+for (int i = 0; i < MAX_CONNECTIONS; i++) {
+  if (connections[i].connected) {
+    // See if there is a message
+    WifiMessage msg = wifi.getIncomingMessage();
+    // Check message is there
+    if (msg.hasData) {
+      processCommand(msg);
+    }
+  }
+}
+```
+
+## Check Connection
+**boolean isConnection(void)** - Returns true if client is connected,
+otherwise false. Use as above without WifiConnection pointer if not
+bothered about multi-client.
+
+## Get Incoming Message From Connected Client
+**WifiMessage getIncomingMessage(void)** - checks serial buffer for messages.
+Return is WifiMessage type as below. See example Check Client Connection
+example for usage.
+
 ## Receiving messages
 **WifiMessage listenForIncomingMessage(int timeoutMillis)** will listen for new messages up to timeoutMillis milliseconds. Call this method as often as possible and with as large timeoutMillis as possible to be able to catch as many messages as possible..
 * **timeoutMillis** the maximum number of milliseconds to look for a new incoming message

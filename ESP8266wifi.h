@@ -24,13 +24,21 @@
 #include "HardwareSerial.h"
 
 #define SERVER '4'
+#define MAX_CONNECTIONS 3
 
+#define MSG_BUFFER_MAX 128
 
 struct WifiMessage{
 public:
     bool hasData:1;
     char channel;
     char * message;
+};
+
+struct WifiConnection{
+public:
+    char channel;
+    bool connected:1;
 };
 
 struct Flags   // 1 byte value (on a system where 8 bits is a byte
@@ -122,6 +130,9 @@ public:
      * Scan for incoming message, do this as often and as long as you can (use as sleep in loop)
      */
     WifiMessage listenForIncomingMessage(int timeoutMillis);
+    WifiMessage getIncomingMessage(void);
+    bool isConnection(void);
+    bool checkConnections(WifiConnection **pConnections);
     
 private:
     Stream* _serialIn;
@@ -144,17 +155,19 @@ private:
     char _localAPPassword[16];
     char _localAPChannel[3];
     char _localServerPort[6];
+    WifiConnection _connections[MAX_CONNECTIONS];
     
     bool restart();
     
     byte serverRetries;
     bool watchdog();
     
-    char msgOut[26];//buffer for send method
-    char msgIn[26]; //buffer for listen method = limit of incoming message..
+    char msgOut[MSG_BUFFER_MAX];//buffer for send method
+    char msgIn[MSG_BUFFER_MAX]; //buffer for listen method = limit of incoming message..
 
     void writeCommand(const char* text1, const char* text2 = NULL);
     byte readCommand(int timeout, const char* text1 = NULL, const char* text2 = NULL);
+    //byte readCommand(const char* text1, const char* text2);
     byte readBuffer(char* buf, byte count, char delim = '\0');
     char readChar();
 
