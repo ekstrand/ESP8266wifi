@@ -75,9 +75,6 @@ class ESP8266wifi
 {
     
 public:
-	uint8_t listAps(struct listApDataItem* data, uint8_t len, char* specificSSID = NULL);
-	uint8_t listAp(struct listApDataItem* data, char* ssid);
-
     /*
      * Will pull resetPin low then high to reset esp8266, connect this pin to CHPD pin
      */
@@ -95,7 +92,16 @@ public:
     bool begin(); // reset and set echo and other stuff
     
     bool isStarted();
-    
+
+	/*
+	 * Will fill datastructure with access point information.
+	 */
+	uint8_t listAps(struct listApDataItem* data, uint8_t len, char* specificSSID = NULL, char* specificMAC = NULL, int specificChannel = -1);
+	/*
+	 * Will scan for a specific access point.
+	 */
+	uint8_t listAp(struct listApDataItem* data, char* ssid, char* mac = NULL, int channel = -1);
+
     /*
      * Connect to AP using wpa encryption
      * (reconnect logic is applied, if conn lost or not established, or esp8266 restarted)
