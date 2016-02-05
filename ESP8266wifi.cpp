@@ -738,7 +738,7 @@ uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* spe
 				return entries; //OK, exit loop.
 			} else if(entryOrOk == 1) {
 				//get data
-				readBuffer2(mybuf, sizeof(mybuf) - 1, '\n');
+				readBuffer(msgIn, sizeof(msgIn) - 1, '\n', 500);
 
 				entries++;				
 				if(curEntry >= len) {
@@ -748,18 +748,13 @@ uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* spe
 				//tokenize buffer
 				token = strtok(mybuf, ":(,\")");
 				if(token) { //ap type
-					if(*token == '0') {
-						data[curEntry].type = WIFI_OPEN;
-					} else if(*token == '1') {
-						data[curEntry].type = WIFI_WEP;
-					} else if(*token == '2') {
-						data[curEntry].type = WIFI_WPA_PSK;
-					} else if(*token == '3') {
-						data[curEntry].type = WIFI_WPA2_PSK;
-					} else if(*token == '4') {
-						data[curEntry].type = WIFI_WPA_WPA2_PSK;
-					} else {
-						goto error;
+					switch(*token) {
+						case '0': data[curEntry].type = WIFI_OPEN; break;
+						case '1': data[curEntry].type = WIFI_WEP; break;
+						case '2': data[curEntry].type = WIFI_WPA_PSK; break;
+						case '3': data[curEntry].type = WIFI_WPA2_PSK; break;
+						case '4': data[curEntry].type = WIFI_WPA_WPA2_PSK; break;
+						default: goto error;
 					}
 				} else goto error;
 				
