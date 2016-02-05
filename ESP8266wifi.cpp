@@ -595,7 +595,7 @@ WifiMessage ESP8266wifi::getIncomingMessage(void) {
 }
 
 // Writes commands (from PROGMEM) to serial output
-void ESP8266wifi::writeCommand(const char* text1 = NULL, const char* text2) {
+void ESP8266wifi::writeCommand(const char* text1, const char* text2) {
     char buf[16] = {'\0'};
     strcpy_P(buf, (char *) text1);
     _serialOut->print(buf);
