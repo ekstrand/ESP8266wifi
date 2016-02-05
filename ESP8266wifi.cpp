@@ -709,11 +709,10 @@ char ESP8266wifi::readChar() {
 uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* specificSSID) {
 	byte entryOrOk = 0;
 	byte code = 0;
-	char mybuf[128];
 	char* token;
 	uint8_t curEntry = 0;
 	uint8_t entries = 0;
-	memset(mybuf, '\0', sizeof(mybuf));
+	memset(msgIn, '\0', sizeof(msgIn));
 	memset(data, 0, sizeof(listApDataItem) * len);
 
 	if(specificSSID != NULL) {
@@ -746,7 +745,7 @@ uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* spe
 				}
 				
 				//tokenize buffer
-				token = strtok(mybuf, ":(,\")");
+				token = strtok(msgIn, ":(,\")");
 				if(token) { //ap type
 					switch(*token) {
 						case '0': data[curEntry].type = WIFI_OPEN; break;
