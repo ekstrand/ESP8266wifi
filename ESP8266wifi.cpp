@@ -725,10 +725,10 @@ uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* spe
 		writeCommand(CWLAP1, EOL);
 	}
 
-    code = readCommand(4000, CWLAP1, ERROR);
-    if (code == 2){
-	    restart();
-		return 0; //something went wrong.
+	code = readCommand(4000, CWLAP1, ERROR);
+	if (code == 2){
+		restart();
+		goto error; //something went wrong.
     } else if (code == 1) {
 		do {
 			entryOrOk = readCommand(4000, CWLAP2, OK);
