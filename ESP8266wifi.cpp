@@ -706,7 +706,7 @@ char ESP8266wifi::readChar() {
     return c;
 }
 
-uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* specificSSID) {
+uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* specificSSID, char* specificMAC, int specificChannel) {
 	byte entryOrOk = 0;
 	byte code = 0;
 	char* token;
@@ -717,10 +717,21 @@ uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* spe
 
 	if(specificSSID != NULL) {
 		//issue request for specific ap; may not work on older firmware
-		//TODO: extend to also being able setti
 		writeCommand(CWLAP3);
 		_serialOut->print(specificSSID);
-		writeCommand(DOUBLE_QUOTE, EOL);
+		writeCommand(DOUBLE_QUOTE);
+		
+		if(specificMAC != NULL) {
+			writeCommand(COMMA, DOUBLE_QUOTE);
+			_serialOut->print(specificMAC);
+			writeCommand(DOUBLE_QUOTE);
+
+			if(specificChannel > 0) {
+				writeCommand(COMMA);
+				_serialOut->print(specificChannel);
+			}
+		}
+		_serialOut->println();
 	} else {
 		writeCommand(CWLAP1, EOL);
 	}
@@ -786,6 +797,6 @@ error:
 	return 0;
 }
 
-uint8_t ESP8266wifi::listAp(struct listApDataItem* data, char* ssid) {
-	return listAps(data, 1, ssid);
+uint8_t ESP8266wifi::listAp(struct listApDataItem* data, char* ssid, char* mac, int channel) {
+	return listAps(data, 1, ssid, mac, channel);
 }
