@@ -57,10 +57,27 @@ struct Flags   // 1 byte value (on a system where 8 bits is a byte
          connectToServerUsingTCP:1;
 };
 
+enum listApTypes {WIFI_OPEN = 0,
+	WIFI_WEP = 1,
+	WIFI_WPA_PSK = 2,
+	WIFI_WPA2_PSK = 3,
+	WIFI_WPA_WPA2_PSK = 4,
+};
+struct listApDataItem {
+	listApTypes type;
+	char ssid[32];
+	int8_t rssi;
+	char mac[18];
+	uint8_t channel;
+};
+
 class ESP8266wifi
 {
     
 public:
+	uint8_t listAps(struct listApDataItem* data, uint8_t len, char* specificSSID = NULL);
+	uint8_t listAp(struct listApDataItem* data, char* ssid);
+
     /*
      * Will pull resetPin low then high to reset esp8266, connect this pin to CHPD pin
      */
@@ -169,6 +186,7 @@ private:
     byte readCommand(int timeout, const char* text1 = NULL, const char* text2 = NULL);
     //byte readCommand(const char* text1, const char* text2);
     byte readBuffer(char* buf, byte count, char delim = '\0');
+    byte readBuffer2(char* buf, byte count, char delim = '\0', int timeout = 500);
     char readChar();
 
     Stream* _dbgSerial;

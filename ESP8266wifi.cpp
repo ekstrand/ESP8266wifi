@@ -51,6 +51,10 @@ const char ATE1[] PROGMEM = "ATE1";
 
 const char CWSAP[] PROGMEM = "AT+CWSAP=\"";
 
+const char CWLAP1[] PROGMEM = "AT+CWLAP";
+const char CWLAP2[] PROGMEM = "+CWLAP";
+const char CWLAP3[] PROGMEM = "AT+CWLAP=\"";
+
 const char IPD[] PROGMEM = "IPD,";
 const char CONNECT[] PROGMEM = "CONNECT";
 const char CLOSED[] PROGMEM = "CLOSED";
@@ -674,6 +678,22 @@ byte ESP8266wifi::readBuffer(char* buf, byte count, char delim) {
     return pos;
 }
 
+// Blocking read count chars to a buffer, or until delim char is found, or the request timed out.
+byte ESP8266wifi::readBuffer2(char* buf, byte count, char delim, int timeout) {
+	byte pos = 0;
+    unsigned long stop = millis() + timeout;
+
+	while (pos < count && millis() < stop) {
+		if(_serialIn->available()) {
+			if (_serialIn->peek() == delim)
+				break;
+			buf[pos++] = readChar();
+		}
+	}
+	buf[pos] = '\0';
+	return pos;
+}
+
 // Reads a single char from serial input (with debug printout if configured)
 char ESP8266wifi::readChar() {
     char c = _serialIn->read();
@@ -682,4 +702,94 @@ char ESP8266wifi::readChar() {
     else
         delayMicroseconds(50); // don't know why
     return c;
+}
+
+uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* specificSSID) {
+	byte entryOrOk = 0;
+	byte code = 0;
+	char mybuf[128];
+	char* token;
+	uint8_t curEntry = 0;
+	uint8_t entries = 0;
+	memset(mybuf, '\0', sizeof(mybuf));
+	memset(data, 0, sizeof(listApDataItem) * len);
+
+	if(specificSSID != NULL) {
+		//issue request for specific ap; may not work on older firmware
+		//TODO: extend to also being able setti
+		writeCommand(CWLAP3);
+		_serialOut->print(specificSSID);
+		writeCommand(DOUBLE_QUOTE, EOL);
+	} else {
+		writeCommand(CWLAP1, EOL);
+	}
+
+    code = readCommand(4000, CWLAP1, ERROR);
+    if (code == 2){
+	    restart();
+		return 0; //something went wrong.
+    } else if (code == 1) {
+		do {
+			entryOrOk = readCommand(4000, CWLAP2, OK);
+
+			if(entryOrOk == 2) {
+				return entries; //OK, exit loop.
+			} else if(entryOrOk == 1) {
+				//get data
+				readBuffer2(mybuf, sizeof(mybuf) - 1, '\n');
+
+				entries++;				
+				if(curEntry >= len) {
+					continue; //only get remaining number of aps, do not store information.
+				}
+				
+				//tokenize buffer
+				token = strtok(mybuf, ":(,\")");
+				if(token) { //ap type
+					if(*token == '0') {
+						data[curEntry].type = WIFI_OPEN;
+					} else if(*token == '1') {
+						data[curEntry].type = WIFI_WEP;
+					} else if(*token == '2') {
+						data[curEntry].type = WIFI_WPA_PSK;
+					} else if(*token == '3') {
+						data[curEntry].type = WIFI_WPA2_PSK;
+					} else if(*token == '4') {
+						data[curEntry].type = WIFI_WPA_WPA2_PSK;
+					} else {
+						goto error;
+					}
+				} else goto error;
+				
+				token = strtok(NULL, "(,\")");
+				if(token) { //ssid
+					strncpy(data[curEntry].ssid, token, sizeof(data[curEntry].ssid));
+				} else goto error;
+				
+				token = strtok(NULL, "(,\")");
+				if(token) { //rssi
+					data[curEntry].rssi = atoi(token);
+				} else goto error;
+
+				token = strtok(NULL, ",\"");
+				if(token) { //mac
+					strncpy(data[curEntry].mac, token, sizeof(data[curEntry].mac));
+				} else goto error;
+				
+				token = strtok(NULL, "(,\")");
+				if(token) { //channel
+					data[curEntry].channel = atoi(token);
+				} else goto error;
+				
+				curEntry++;
+			} else goto error;
+		} while(true);
+	}
+	
+error:
+	return 0;
+}
+
+uint8_t ESP8266wifi::listAp(struct listApDataItem* data, char* ssid) {
+	return listAps(data, 1, ssid);
 }
