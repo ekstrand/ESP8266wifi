@@ -667,28 +667,30 @@ byte ESP8266wifi::readCommand(int timeout, const char* text1, const char* text2)
 }*/
 
 // Reads count chars to a buffer, or until delim char is found
-byte ESP8266wifi::readBuffer(char* buf, byte count, char delim) {
-    byte pos = 0;
-    while (_serialIn->available() && pos < count) {
-        if (_serialIn->peek() == delim)
-            break;
-        buf[pos++] = readChar();
-    }
-    buf[pos] = '\0';
-    return pos;
-}
+//byte ESP8266wifi::readBuffer(char* buf, byte count, char delim) {
+    //byte pos = 0;
+    //while (_serialIn->available() && pos < count) {
+        //if (_serialIn->peek() == delim)
+            //break;
+        //buf[pos++] = readChar();
+    //}
+    //buf[pos] = '\0';
+    //return pos;
+//}
 
-// Blocking read count chars to a buffer, or until delim char is found, or the request timed out.
-byte ESP8266wifi::readBuffer2(char* buf, byte count, char delim, int timeout) {
+// Read count chars to a buffer, or until delim char is found, or the request timed out.
+byte ESP8266wifi::readBuffer(char* buf, byte count, char delim, int timeout) {
 	byte pos = 0;
     unsigned long stop = millis() + timeout;
 
-	while (pos < count && millis() < stop) {
+	while (pos < count) {
 		if(_serialIn->available()) {
 			if (_serialIn->peek() == delim)
 				break;
 			buf[pos++] = readChar();
 		}
+		if(millis() > stop)
+			break; //timed out.
 	}
 	buf[pos] = '\0';
 	return pos;

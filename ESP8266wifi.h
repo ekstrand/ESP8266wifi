@@ -191,8 +191,8 @@ private:
     void writeCommand(const char* text1, const char* text2 = NULL);
     byte readCommand(int timeout, const char* text1 = NULL, const char* text2 = NULL);
     //byte readCommand(const char* text1, const char* text2);
-    byte readBuffer(char* buf, byte count, char delim = '\0');
-    byte readBuffer2(char* buf, byte count, char delim = '\0', int timeout = 500);
+    //byte readBuffer(char* buf, byte count, char delim = '\0');
+    byte readBuffer(char* buf, byte count, char delim = '\0', int timeout = 0);
     char readChar();
 
     Stream* _dbgSerial;
