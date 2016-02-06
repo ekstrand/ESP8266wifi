@@ -47,7 +47,18 @@ ESP8266#Module_Pin_Description
 * **specificMAC** optionally filter for a specific MAC address
 * **specificChannel** optionally filter for a specific channel
 * **return** will return the number of found access points
-* **Example:** `struct listApDataItem data[10]; uint8_t foundAps = wifi.listAps(data, 10);`
+* **Example:**
+```
+struct listApDataItem data[10]; //buffer information
+uint8_t foundAps = wifi.listAps(data, 10); //request
+for(uint8_t i = 0; i < min(foundAps, 10); i++) {
+  Serial.println(foundAps[i].ssid);
+  Serial.println(foundAps[i].mac);
+  Serial.println(foundAps[i].channel);
+  Serial.println(foundAps[i].rssi);
+  Serial.println((!foundAps[i].type) ? "open" : "secured");
+}
+```
 
 **uint8_t listAp(struct listApDataItem* data, char* ssid, char* mac = NULL, int channel = -1)** gets information about a specific access point
 * **data** this object is used to store data information from the ESP8266
