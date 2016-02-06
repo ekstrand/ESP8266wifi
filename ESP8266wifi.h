@@ -58,17 +58,17 @@ struct Flags   // 1 byte value (on a system where 8 bits is a byte
 };
 
 enum listApTypes {WIFI_OPEN = 0,
-	WIFI_WEP = 1,
-	WIFI_WPA_PSK = 2,
-	WIFI_WPA2_PSK = 3,
-	WIFI_WPA_WPA2_PSK = 4,
+    WIFI_WEP = 1,
+    WIFI_WPA_PSK = 2,
+    WIFI_WPA2_PSK = 3,
+    WIFI_WPA_WPA2_PSK = 4,
 };
 struct listApDataItem {
-	listApTypes type;
-	char ssid[32];
-	int8_t rssi;
-	char mac[18];
-	uint8_t channel;
+    listApTypes type;
+    char ssid[32];
+    int8_t rssi;
+    char mac[18];
+    uint8_t channel;
 };
 
 class ESP8266wifi
@@ -93,14 +93,14 @@ public:
     
     bool isStarted();
 
-	/*
-	 * Will fill datastructure with access point information.
-	 */
-	uint8_t listAps(struct listApDataItem* data, uint8_t len, char* specificSSID = NULL, char* specificMAC = NULL, int specificChannel = -1);
-	/*
-	 * Will scan for a specific access point.
-	 */
-	uint8_t listAp(struct listApDataItem* data, char* ssid, char* mac = NULL, int channel = -1);
+    /*
+     * Will fill datastructure with access point information.
+     */
+    uint8_t listAps(struct listApDataItem* data, uint8_t len, char* specificSSID = NULL, char* specificMAC = NULL, int specificChannel = -1);
+    /*
+     * Will scan for a specific access point.
+     */
+    uint8_t listAp(struct listApDataItem* data, char* ssid, char* mac = NULL, int channel = -1);
 
     /*
      * Connect to AP using wpa encryption
