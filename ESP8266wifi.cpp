@@ -669,7 +669,6 @@ uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* spe
     byte entryOrOk = 0;
     byte code = 0;
     char* token;
-    uint8_t curEntry = 0;
     uint8_t entries = 0;
     memset(msgIn, '\0', sizeof(msgIn));
     memset(data, 0, sizeof(listApDataItem) * len);
@@ -710,9 +709,8 @@ uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* spe
                 //get data
                 readBuffer(msgIn, sizeof(msgIn) - 1, '\n', 500);
 
-                entries++;                
-                if(curEntry >= len) {
-                    continue; //only get remaining number of aps, do not store information.
+                if(entries >= len) {
+                    continue; //given buffer is full: only count remaining number of aps
                 }
                 
                 //tokenize buffer
@@ -730,25 +728,25 @@ uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* spe
                 
                 token = strtok(NULL, "(,\")");
                 if(token) { //ssid
-                    strncpy(data[curEntry].ssid, token, sizeof(data[curEntry].ssid));
+                    strncpy(data[entries].ssid, token, sizeof(data[entries].ssid));
                 } else goto error;
                 
                 token = strtok(NULL, "(,\")");
                 if(token) { //rssi
-                    data[curEntry].rssi = atoi(token);
+                    data[entries].rssi = atoi(token);
                 } else goto error;
 
                 token = strtok(NULL, ",\"");
                 if(token) { //mac
-                    strncpy(data[curEntry].mac, token, sizeof(data[curEntry].mac));
+                    strncpy(data[entries].mac, token, sizeof(data[entries].mac));
                 } else goto error;
                 
                 token = strtok(NULL, "(,\")");
                 if(token) { //channel
-                    data[curEntry].channel = atoi(token);
+                    data[entries].channel = atoi(token);
                 } else goto error;
                 
-                curEntry++;
+                entries++;
             } else goto error;
         } while(true);
     }
