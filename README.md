@@ -202,7 +202,7 @@ Note: It is really only the send method that can detect a lost connection to the
 In ESP8266wifi.h you can change some stuff:
 * **HW_RESET_RETRIES 3** - is the maximum number of times begin() will try to start the ESP8266 module
 * **SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 30** - is the nr of time the watchdog will try to establish connection to a server before a hardware reset of the ESP8266 is performed
-* The maximum number of characters for incoming and outgoing messages can be changes by editing:
+* The maximum number of characters for incoming and outgoing messages can be changes by editing (note: listAp requires about 80 chars for msgIn):
     * char msgOut[26];
     * char msgIn[26];
 * If the limit for ssid and password length does not suite you, please change:
