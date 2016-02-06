@@ -46,6 +46,7 @@ ESP8266#Module_Pin_Description
 * **specificSSID optionally filter for a specific SSID
 * **specificMAC optionally filter for a specific MAC address
 * **specificChannel optionally filter for a specific channel
+* **return** will return the number of found access points
 * **Example:** `struct listApDataItem data[10]; uint8_t foundAps = wifi.listAps(data, 10);`
 
 **uint8_t listAp(struct listApDataItem* data, char* ssid, char* mac = NULL, int channel = -1) gets information about a specific access point
@@ -53,6 +54,7 @@ ESP8266#Module_Pin_Description
 * **ssid filter for a specific SSID
 * **specificMAC optionally filter for a specific MAC address
 * **specificChannel optionally filter for a specific channel
+* **return** will return the number of found access points
 * **Example:** `struct listApDataItem data; uint8_t foundAps = wifi.listAp(&data, "myaccesspoint");`
 
 ## Connecting to an access point
