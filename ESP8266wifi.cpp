@@ -641,20 +641,20 @@ byte ESP8266wifi::readCommand(int timeout, const char* text1, const char* text2)
 
 // Read count chars to a buffer, or until delim char is found, or the request timed out.
 byte ESP8266wifi::readBuffer(char* buf, byte count, char delim, int timeout) {
-	byte pos = 0;
+    byte pos = 0;
     unsigned long stop = millis() + timeout;
 
-	while (pos < count) {
-		if(_serialIn->available()) {
-			if (_serialIn->peek() == delim)
-				break;
-			buf[pos++] = readChar();
-		}
-		if(timeout > 0 && millis() > stop)
-			break; //timed out.
-	}
-	buf[pos] = '\0';
-	return pos;
+    while (pos < count) {
+        if(_serialIn->available()) {
+            if (_serialIn->peek() == delim)
+                break;
+            buf[pos++] = readChar();
+        }
+        if(timeout > 0 && millis() > stop)
+            break; //timed out.
+    }
+    buf[pos] = '\0';
+    return pos;
 }
 
 // Reads a single char from serial input (with debug printout if configured)
@@ -666,96 +666,96 @@ char ESP8266wifi::readChar() {
 }
 
 uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* specificSSID, char* specificMAC, int specificChannel) {
-	byte entryOrOk = 0;
-	byte code = 0;
-	char* token;
-	uint8_t curEntry = 0;
-	uint8_t entries = 0;
-	memset(msgIn, '\0', sizeof(msgIn));
-	memset(data, 0, sizeof(listApDataItem) * len);
+    byte entryOrOk = 0;
+    byte code = 0;
+    char* token;
+    uint8_t curEntry = 0;
+    uint8_t entries = 0;
+    memset(msgIn, '\0', sizeof(msgIn));
+    memset(data, 0, sizeof(listApDataItem) * len);
 
-	if(specificSSID != NULL) {
-		//issue request for specific ap; may not work on older firmware
-		writeCommand(CWLAP3);
-		_serialOut->print(specificSSID);
-		writeCommand(DOUBLE_QUOTE);
-		
-		if(specificMAC != NULL) {
-			writeCommand(COMMA, DOUBLE_QUOTE);
-			_serialOut->print(specificMAC);
-			writeCommand(DOUBLE_QUOTE);
+    if(specificSSID != NULL) {
+        //issue request for specific ap; may not work on older firmware
+        writeCommand(CWLAP3);
+        _serialOut->print(specificSSID);
+        writeCommand(DOUBLE_QUOTE);
+        
+        if(specificMAC != NULL) {
+            writeCommand(COMMA, DOUBLE_QUOTE);
+            _serialOut->print(specificMAC);
+            writeCommand(DOUBLE_QUOTE);
 
-			if(specificChannel > 0) {
-				writeCommand(COMMA);
-				_serialOut->print(specificChannel);
-			}
-		}
-		_serialOut->println();
-	} else {
-		writeCommand(CWLAP1, EOL);
-	}
+            if(specificChannel > 0) {
+                writeCommand(COMMA);
+                _serialOut->print(specificChannel);
+            }
+        }
+        _serialOut->println();
+    } else {
+        writeCommand(CWLAP1, EOL);
+    }
 
-	code = readCommand(4000, CWLAP1, ERROR);
-	if (code == 2){
-		restart();
-		goto error; //something went wrong.
+    code = readCommand(4000, CWLAP1, ERROR);
+    if (code == 2){
+        restart();
+        goto error; //something went wrong.
     } else if (code == 1) {
-		do {
-			entryOrOk = readCommand(4000, CWLAP2, OK);
+        do {
+            entryOrOk = readCommand(4000, CWLAP2, OK);
 
-			if(entryOrOk == 2) {
-				return entries; //OK, exit loop.
-			} else if(entryOrOk == 1) {
-				//get data
-				readBuffer(msgIn, sizeof(msgIn) - 1, '\n', 500);
+            if(entryOrOk == 2) {
+                return entries; //OK, exit loop.
+            } else if(entryOrOk == 1) {
+                //get data
+                readBuffer(msgIn, sizeof(msgIn) - 1, '\n', 500);
 
-				entries++;				
-				if(curEntry >= len) {
-					continue; //only get remaining number of aps, do not store information.
-				}
-				
-				//tokenize buffer
-				token = strtok(msgIn, ":(,\")");
-				if(token) { //ap type
-					switch(*token) {
-						case '0': data[curEntry].type = WIFI_OPEN; break;
-						case '1': data[curEntry].type = WIFI_WEP; break;
-						case '2': data[curEntry].type = WIFI_WPA_PSK; break;
-						case '3': data[curEntry].type = WIFI_WPA2_PSK; break;
-						case '4': data[curEntry].type = WIFI_WPA_WPA2_PSK; break;
-						default: goto error;
-					}
-				} else goto error;
-				
-				token = strtok(NULL, "(,\")");
-				if(token) { //ssid
-					strncpy(data[curEntry].ssid, token, sizeof(data[curEntry].ssid));
-				} else goto error;
-				
-				token = strtok(NULL, "(,\")");
-				if(token) { //rssi
-					data[curEntry].rssi = atoi(token);
-				} else goto error;
+                entries++;                
+                if(curEntry >= len) {
+                    continue; //only get remaining number of aps, do not store information.
+                }
+                
+                //tokenize buffer
+                token = strtok(msgIn, ":(,\")");
+                if(token) { //ap type
+                    switch(*token) {
+                        case '0': data[curEntry].type = WIFI_OPEN; break;
+                        case '1': data[curEntry].type = WIFI_WEP; break;
+                        case '2': data[curEntry].type = WIFI_WPA_PSK; break;
+                        case '3': data[curEntry].type = WIFI_WPA2_PSK; break;
+                        case '4': data[curEntry].type = WIFI_WPA_WPA2_PSK; break;
+                        default: goto error;
+                    }
+                } else goto error;
+                
+                token = strtok(NULL, "(,\")");
+                if(token) { //ssid
+                    strncpy(data[curEntry].ssid, token, sizeof(data[curEntry].ssid));
+                } else goto error;
+                
+                token = strtok(NULL, "(,\")");
+                if(token) { //rssi
+                    data[curEntry].rssi = atoi(token);
+                } else goto error;
 
-				token = strtok(NULL, ",\"");
-				if(token) { //mac
-					strncpy(data[curEntry].mac, token, sizeof(data[curEntry].mac));
-				} else goto error;
-				
-				token = strtok(NULL, "(,\")");
-				if(token) { //channel
-					data[curEntry].channel = atoi(token);
-				} else goto error;
-				
-				curEntry++;
-			} else goto error;
-		} while(true);
-	}
-	
+                token = strtok(NULL, ",\"");
+                if(token) { //mac
+                    strncpy(data[curEntry].mac, token, sizeof(data[curEntry].mac));
+                } else goto error;
+                
+                token = strtok(NULL, "(,\")");
+                if(token) { //channel
+                    data[curEntry].channel = atoi(token);
+                } else goto error;
+                
+                curEntry++;
+            } else goto error;
+        } while(true);
+    }
+    
 error:
-	return 0;
+    return 0;
 }
 
 uint8_t ESP8266wifi::listAp(struct listApDataItem* data, char* ssid, char* mac, int channel) {
-	return listAps(data, 1, ssid, mac, channel);
+    return listAps(data, 1, ssid, mac, channel);
 }
