@@ -645,7 +645,7 @@ byte ESP8266wifi::readBuffer(char* buf, byte count, char delim, int timeout) {
     unsigned long stop = millis() + timeout;
 
     while (pos < count) {
-        if(_serialIn->available()) {
+        while(_serialIn->available()) {
             if (_serialIn->peek() == delim)
                 break;
             buf[pos++] = readChar();
