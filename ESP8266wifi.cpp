@@ -689,7 +689,7 @@ byte ESP8266wifi::readBuffer(char* buf, byte count, char delim, int timeout) {
 				break;
 			buf[pos++] = readChar();
 		}
-		if(millis() > stop)
+		if(timeout > 0 && millis() > stop)
 			break; //timed out.
 	}
 	buf[pos] = '\0';
