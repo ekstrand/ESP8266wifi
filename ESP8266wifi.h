@@ -189,7 +189,7 @@ private:
     char msgIn[MSG_BUFFER_MAX]; //buffer for listen method = limit of incoming message..
 
     void writeCommand(const char* text1, const char* text2 = NULL);
-    byte readCommand(int timeout, const char* text1, const char* text2 = NULL);
+    byte readCommand(int timeout, const char* text1 = NULL, const char* text2 = NULL);
     byte readBuffer(char* buf, byte count, char delim = '\0', int timeout = 0);
     char readChar();
 
