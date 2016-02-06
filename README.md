@@ -40,7 +40,7 @@ ESP8266#Module_Pin_Description
 * **Example:** `boolean esp8266started = wifi.begin();`
 
 ## Get access point information
-**uint8_t listAps(struct listApDataItem** data, uint8_t len, char* specificSSID = NULL, char* specificMAC = NULL, int specificChannel = -1) lists information about access points
+**uint8_t listAps(struct listApDataItem* data, uint8_t len, char* specificSSID = NULL, char* specificMAC = NULL, int specificChannel = -1)** lists information about access points
 * **data** this array is used to store information read from the ESP8266
 * **len** this defines the size of the given array
 * **specificSSID** optionally filter for a specific SSID
@@ -48,7 +48,7 @@ ESP8266#Module_Pin_Description
 * **specificChannel** optionally filter for a specific channel
 * **Example:** `struct listApDataItem data[10]; uint8_t foundAps = wifi.listAps(data, 10);`
 
-**uint8_t listAp(struct listApDataItem** data, char* ssid, char* mac = NULL, int channel = -1) gets information about a specific access point
+**uint8_t listAp(struct listApDataItem* data, char* ssid, char* mac = NULL, int channel = -1)** gets information about a specific access point
 * **data** this object is used to store data information from the ESP8266
 * **ssid** filter for a specific SSID
 * **specificMAC** optionally filter for a specific MAC address
