@@ -690,15 +690,16 @@ uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* spe
                 _serialOut->print(specificChannel);
             }
         }
-        _serialOut->println();
+		writeCommand(EOL);
     } else {
+		//request all aps in range
         writeCommand(CWLAP1, EOL);
     }
 
     code = readCommand(4000, CWLAP1, ERROR);
     if (code == 2){
         restart();
-        goto error; //something went wrong.
+        goto error; //something went wrong, e.g. filtering is not supported
     } else if (code == 1) {
         do {
             entryOrOk = readCommand(4000, CWLAP2, OK);
