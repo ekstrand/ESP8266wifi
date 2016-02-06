@@ -689,7 +689,7 @@ uint8_t ESP8266wifi::listAps(struct listApDataItem* data, uint8_t len, char* spe
                 _serialOut->print(specificChannel);
             }
         }
-		writeCommand(EOL);
+		_serialOut->println();
     } else {
 		//request all aps in range
         writeCommand(CWLAP1, EOL);
