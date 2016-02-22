@@ -1,0 +1,12 @@
+{
+  "name": "ESP8266wifi",
+  "keywords": "wifi, wi-fi, http, web, server, client",
+  "description": "ESP8266 Arduino library with built in reconnect functionality",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/ekstrand/ESP8266wifi.git"
+  },
+  "frameworks": "arduino",
+  "platforms": "atmelavr"
+}
