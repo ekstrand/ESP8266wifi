@@ -22,7 +22,6 @@ const char NO_CHANGE[] PROGMEM = "no change";
 const char SEND_OK[] PROGMEM = "SEND OK";
 const char LINK_IS_NOT[] PROGMEM = "link is not";
 const char PROMPT[] PROGMEM = ">";
-
 const char BUSYC[] PROGMEM =  "busy";
 const char LINKED[] PROGMEM = "Linked";
 const char ALREADY[] PROGMEM = "ALREAY"; //yes typo in firmware..
