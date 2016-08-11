@@ -139,7 +139,7 @@ bool ESP8266wifi::begin() {
         delay(500);
         digitalWrite(_resetPin, HIGH); // select the radio
         // Look for ready string from wifi module
-        statusOk = readCommand(6000, READY) == 1;
+        statusOk = readCommand(3000, READY) == 1;
         if(statusOk)
             break;
     }
