@@ -1,5 +1,5 @@
 {
-  "name": "ESP8266wifi",
+  "name": "ESP8266WiFi",
   "keywords": "wifi, wi-fi, http, web, server, client",
   "description": "ESP8266 Arduino library with built in reconnect functionality",
   "repository":
