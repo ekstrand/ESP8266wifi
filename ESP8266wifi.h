@@ -20,7 +20,13 @@
 #endif
 
 #include <inttypes.h>
+
+#if defined(ESP8266)
+#include <pgmspace.h>
+#else
 #include <avr/pgmspace.h>
+#endif
+
 #include "HardwareSerial.h"
 
 #define SERVER '4'
