@@ -21,12 +21,11 @@
 
 #include <inttypes.h>
 
-#if defined ( ESP8266 )
-  #include <pgmspace.h>
+#if defined(ESP8266)
+#include <pgmspace.h>
 #else
-  #include <avr/pgmspace.h>
+#include <avr/pgmspace.h>
 #endif
-
 
 #include "HardwareSerial.h"
 
