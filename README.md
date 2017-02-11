@@ -39,6 +39,35 @@ ESP8266#Module_Pin_Description
 * **return** will return a true or false depending if the module was properly initiated
 * **Example:** `boolean esp8266started = wifi.begin();`
 
+## Get access point information
+**uint8_t listAps(struct listApDataItem* data, uint8_t len, char* specificSSID = NULL, char* specificMAC = NULL, int specificChannel = -1)** lists information about access points
+* **data** this array is used to store information read from the ESP8266
+* **len** this defines the size of the given array
+* **specificSSID** optionally filter for a specific SSID
+* **specificMAC** optionally filter for a specific MAC address
+* **specificChannel** optionally filter for a specific channel
+* **return** will return the number of found access points
+* **Example:**
+```
+struct listApDataItem data[10]; //buffer information
+uint8_t foundAps = wifi.listAps(data, 10); //request
+for(uint8_t i = 0; i < min(foundAps, 10); i++) {
+  Serial.println(foundAps[i].ssid);
+  Serial.println(foundAps[i].mac);
+  Serial.println(foundAps[i].channel);
+  Serial.println(foundAps[i].rssi);
+  Serial.println((!foundAps[i].type) ? "open" : "secured");
+}
+```
+
+**uint8_t listAp(struct listApDataItem* data, char* ssid, char* mac = NULL, int channel = -1)** gets information about a specific access point
+* **data** this object is used to store data information from the ESP8266
+* **ssid** filter for a specific SSID
+* **specificMAC** optionally filter for a specific MAC address
+* **specificChannel** optionally filter for a specific channel
+* **return** will return the number of found access points
+* **Example:** `struct listApDataItem data; uint8_t foundAps = wifi.listAp(&data, "myaccesspoint");`
+
 ## Connecting to an access point
 **boolean connectToAP(char * ssid, char*  password)** tells the ESP8266 to connect to an accesspoint
 * **ssid** the ssid (station name) to be used. Note that this method uses char arrays as input. See http://arduino.cc/en/Reference/StringToCharArray for how to convert an arduino string object to a char array (max 15 chars)
@@ -173,7 +202,7 @@ Note: It is really only the send method that can detect a lost connection to the
 In ESP8266wifi.h you can change some stuff:
 * **HW_RESET_RETRIES 3** - is the maximum number of times begin() will try to start the ESP8266 module
 * **SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 30** - is the nr of time the watchdog will try to establish connection to a server before a hardware reset of the ESP8266 is performed
-* The maximum number of characters for incoming and outgoing messages can be changes by editing:
+* The maximum number of characters for incoming and outgoing messages can be changes by editing (note: listAp requires about 80 chars for msgIn):
     * char msgOut[26];
     * char msgIn[26];
 * If the limit for ssid and password length does not suite you, please change:
