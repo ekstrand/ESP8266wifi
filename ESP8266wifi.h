@@ -153,12 +153,12 @@ private:
     
     bool connectToAP();
     char _ssid[16];
-    char _password[16];
+    char _password[32];
     
     bool startLocalAp();
     bool startLocalServer();
     char _localAPSSID[16];
-    char _localAPPassword[16];
+    char _localAPPassword[32];
     char _localAPChannel[3];
     char _localServerPort[6];
     WifiConnection _connections[MAX_CONNECTIONS];
