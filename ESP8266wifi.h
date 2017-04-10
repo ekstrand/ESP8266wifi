@@ -153,7 +153,7 @@ private:
     
     bool connectToAP();
     char _ssid[16];
-    char _password[16];
+    char _password[30];
     
     bool startLocalAp();
     bool startLocalServer();
