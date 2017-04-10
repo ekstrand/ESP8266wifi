@@ -275,7 +275,7 @@ bool ESP8266wifi::connectToServer(){
 void ESP8266wifi::disconnectFromServer(){
     flags.connectedToServer = false;
     flags.serverConfigured = false;//disable reconnect
-    writeCommand(CIPCLOSE);
+    writeCommand(CIPCLOSE, EOL);
     readCommand(2000, OK); //fire and forget in this case..
 }
 
