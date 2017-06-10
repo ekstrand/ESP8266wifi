@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>
-#include <ESP8266wifi.h>
+#include <SerialESP8266wifi.h>
 
 #define sw_serial_rx_pin 4 //  Connect this pin to TX on the esp8266
 #define sw_serial_tx_pin 6 //  Connect this pin to RX on the esp8266
@@ -8,7 +8,7 @@
 SoftwareSerial swSerial(sw_serial_rx_pin, sw_serial_tx_pin);
 
 // the last parameter sets the local echo option for the ESP8266 module..
-ESP8266wifi wifi(swSerial, swSerial, esp8266_reset_pin, Serial);//adding Serial enabled local echo and wifi debug
+SerialESP8266wifi wifi(swSerial, swSerial, esp8266_reset_pin, Serial);//adding Serial enabled local echo and wifi debug
 
 String inputString;
 boolean stringComplete = false;
@@ -71,10 +71,10 @@ void loop() {
     wifi.send(in.channel, in.message);
     nextPing = millis() + 10000;
   }
-  
+
   //If you want do disconnect from the server use:
   // wifi.disconnectFromServer();
-  
+
 }
 
 //Listen for serial input from the console
@@ -87,40 +87,3 @@ void serialEvent() {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>
-#include <ESP8266wifi.h>
+#include <SerialESP8266wifi.h>
 
 /* TCP server/client example, that manages client connections, checks for messages
  *  when client is connected and parses commands. Connect to the ESP8266 IP using
@@ -21,7 +21,7 @@
 SoftwareSerial swSerial(sw_serial_rx_pin, sw_serial_tx_pin);
 
 // the last parameter sets the local echo option for the ESP8266 module..
-ESP8266wifi wifi(Serial, Serial, esp8266_reset_pin, swSerial);
+SerialESP8266wifi wifi(Serial, Serial, esp8266_reset_pin, swSerial);
 
 void processCommand(WifiMessage msg);
 
