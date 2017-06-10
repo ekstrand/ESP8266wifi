@@ -1,4 +1,4 @@
-# ESP8266wifi
+# SerialESP8266wifi
 A simple ESP8266 Arduino library with built in re-connect functionality.
 * The ESP8266 is a dirtcheap wifimodule. I got mine for about 2.50 US including shipping at Aliexpress. Read about it here: https://nurdspace.nl/ESP8266
 * An AT command reference can be found here: https://github.com/espressif/esp8266_at/wiki/AT_Description
@@ -11,27 +11,27 @@ A simple ESP8266 Arduino library with built in re-connect functionality.
 
 
 ## Install
-* Download the library as a zip from https://github.com/ekstrand/ESP8266wifi/archive/master.zip 
-* Unzip and place in ARDUINO_HOME/libraries/ directory as ESP8266wifi
+* Download the library as a zip from https://github.com/ekstrand/SerialESP8266wifi/archive/master.zip 
+* Unzip and place in ARDUINO_HOME/libraries/ directory as SerialESP8266wifi
 * Restart the Arduino IDE
-* In your sketch do a `#include <ESP8266wifi.h>`
+* In your sketch do a `#include <SerialESP8266wifi.h>`
 * To set up a simple server for testing, I like to use SocketTest http://sourceforge.net/projects/sockettest/
 
 ## Constructor
 
-**ESP8266wifi(Stream serialIn, Stream serialOut, byte resetPin)**
+**SerialESP8266wifi(Stream serialIn, Stream serialOut, byte resetPin)**
 * **serialIn** this object is used to read from the ESP8266, you can use either hardware or software serial
 * **serialOut** this object is used to write to the ESP8266, you can use either hardware or software serial
 * **resetPin** this pin will be pulled low then high to reset the ESP8266. It is assumed that a the CH_PD pin is connected the this pin. See pin out and more at: http://www.electrodragon.com/w/ESP8266#Module_Pin_Description
-* **Example:** ```ESP8266wifi wifi(swSerial, swSerial, 10);```
+* **Example:** ```SerialESP8266wifi wifi(swSerial, swSerial, 10);```
 
-**ESP8266wifi(Stream serialIn, Stream serialOut, byte resetPin, Stream debugSerial)**
+**SerialESP8266wifi(Stream serialIn, Stream serialOut, byte resetPin, Stream debugSerial)**
 * **serialIn** this object is used to read from the ESP8266, you can use either hardware or software serial
 * **serialOut** this object is used to write to the ESP8266, you can use either hardware or software serial
 * **resetPin** this pin will be pulled low then high to reset the ESP8266. It is assumed that a the CH_PD pin is connected the this pin. See pin out and more at: http://www.electrodragon.com/w/
 ESP8266#Module_Pin_Description
 * **debugSerial** enables wifi debug and local echo to Serial (could be hw or sw)
-* **Example:** ```ESP8266wifi wifi(swSerial, swSerial, 10, Serial);```
+* **Example:** ```SerialESP8266wifi wifi(swSerial, swSerial, 10, Serial);```
 
 
 ## Starting the module
@@ -170,7 +170,7 @@ Everytime send(...)  and listenForIncomingMessage(..) is called a watchdog check
 Note: It is really only the send method that can detect a lost connection to the server. To be sure you are connected, do a send once in a while..
 
 ## Avanced configuration
-In ESP8266wifi.h you can change some stuff:
+In SerialESP8266wifi.h you can change some stuff:
 * **HW_RESET_RETRIES 3** - is the maximum number of times begin() will try to start the ESP8266 module
 * **SERVER_CONNECT_RETRIES_BEFORE_HW_RESET 30** - is the nr of time the watchdog will try to establish connection to a server before a hardware reset of the ESP8266 is performed
 * The maximum number of characters for incoming and outgoing messages can be changes by editing:
