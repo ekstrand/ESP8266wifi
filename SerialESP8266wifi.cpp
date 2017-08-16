@@ -549,7 +549,9 @@ WifiMessage SerialESP8266wifi::listenForIncomingMessage(int timeout){
             flags.connectedToServer = true;
         readChar(); // removing comma
         readBuffer(&buf[0], sizeof(buf) - 1, ':'); // read char count
-        readChar(); // removing ':' delim
+	// kiwichrish, commented out following line.  Comma is already read from buffer inline above.
+	// causes trucation of message.
+	// readChar(); // removing ':' delim
         byte length = atoi(buf);
         readBuffer(&msgIn[0], min(length, sizeof(msgIn) - 1));
         msg.hasData = true;
@@ -586,7 +588,9 @@ WifiMessage SerialESP8266wifi::getIncomingMessage(void) {
             flags.connectedToServer = true;
         readChar(); // removing comma
         readBuffer(&buf[0], sizeof(buf) - 1, ':'); // read char count
-        readChar(); // removing ':' delim
+	// kiwichrish, commented out following line.  Comma is already read from buffer inline above.
+	// causes trucation of message.
+        // readChar(); // removing ':' delim
         byte length = atoi(buf);
         readBuffer(&msgIn[0], min(length, sizeof(msgIn) - 1));
         msg.hasData = true;
