@@ -40,8 +40,9 @@ ESP8266#Module_Pin_Description
 * **Example:** `boolean esp8266started = wifi.begin();`
 
 ## Connecting to an access point
-**boolean setStaticIp(char* ip, char* gateway, char* mask)** sets static ip. Use it before calling connectToAP to set static ip instead of using DHCP.
-**boolean connectToAP(char * ssid, char*  password)** tells the ESP8266 to connect to an accesspoint
+* **boolean setStaticIp(char* ip, char* gateway, char* mask)** sets static ip. Use it before calling connectToAP to set static ip instead of using DHCP.
+
+* **boolean connectToAP(char * ssid, char*  password)** tells the ESP8266 to connect to an accesspoint
 * **ssid** the ssid (station name) to be used. Note that this method uses char arrays as input. See http://arduino.cc/en/Reference/StringToCharArray for how to convert an arduino string object to a char array (max 15 chars)
 * **password** the access point password wpa/wpa2 is assumed (max 15 chars)
 * **return** will return a true if a valid IP was received within the time limit (15 seconds)
