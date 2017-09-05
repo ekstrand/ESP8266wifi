@@ -40,9 +40,9 @@ ESP8266#Module_Pin_Description
 * **Example:** `boolean esp8266started = wifi.begin();`
 
 ## Connecting to an access point
-* **boolean setStaticIp(char* ip, char* gateway, char* mask)** sets static ip. Use it before calling connectToAP to set static ip instead of using DHCP.
+* **boolean setStaticIp(char\* ip, char\* gateway, char\* mask)** sets static ip. Use it before calling connectToAP to set static ip instead of using DHCP.
 
-* **boolean connectToAP(char * ssid, char*  password)** tells the ESP8266 to connect to an accesspoint
+* **boolean connectToAP(char\* ssid, char\*  password)** tells the ESP8266 to connect to an accesspoint
 * **ssid** the ssid (station name) to be used. Note that this method uses char arrays as input. See http://arduino.cc/en/Reference/StringToCharArray for how to convert an arduino string object to a char array (max 15 chars)
 * **password** the access point password wpa/wpa2 is assumed (max 15 chars)
 * **return** will return a true if a valid IP was received within the time limit (15 seconds)
@@ -53,7 +53,7 @@ ESP8266#Module_Pin_Description
 * **Example:** `boolean apConnected = wifi.isConnectedToAP();`
 
 ## Connecting to a server
-**boolean connectToServer(char* ip, char* port)** tells the ESP8266 to open a connection to a server
+**boolean connectToServer(char\* ip, char\* port)** tells the ESP8266 to open a connection to a server
 * **ip** the IP-address of the server to connect to
 * **port** the port number to be used
 * **return** true if connection is established within 5 seconds
@@ -70,13 +70,13 @@ ESP8266#Module_Pin_Description
 * **Example:** `wifi.disconnectFromServer();`
 
 ## Sending a message
-**boolean send(char channel, char * message)** sends a message - alias for send(char channel, char * message, true)
+**boolean send(char channel, char\* message)** sends a message - alias for send(char channel, char * message, true)
 * **channel** Set to **SERVER** if you want to send to server. If we are the server, the value can be between '1'-'3'
 * **message** a character array, max 25 characters long.
 * **return** true if the message was sent
 * **Example:** `boolean sendOk = wifi.send(SERVER, "Hello World!");`
 
-**boolean send(char channel, char * message, boolean sendNow)** sends or queues a message for later sending
+**boolean send(char channel, char\* message, boolean sendNow)** sends or queues a message for later sending
 * **channel** Set to **SERVER** if you want to send to server. If we are the server, the value can be between '1'-'3'
 * **message** a character array, max 25 characters long.
 * **sendNow** if false, the message is appended to a buffer, if true the message is sent right away
@@ -151,7 +151,7 @@ void loop(){
 ```
 
 ## Local access point and local server
-**boolean startLocalAPAndServer(char* ssid, char* password, char* channel, char* port)** will create an local access point and start a local server
+**boolean startLocalAPAndServer(char\* ssid, char\* password, char\* channel, char\* port)** will create an local access point and start a local server
 * **ssid** the name for your access point, max 15 characters
 * **password** the password for your access point, max 15 characters
 * **channel** the channel for your access point
