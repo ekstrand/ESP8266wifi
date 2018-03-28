@@ -38,6 +38,8 @@ const char TCP[] PROGMEM = "TCP";
 const char UDP[] PROGMEM = "UDP";
 
 const char CWJAP[] PROGMEM = "AT+CWJAP=\"";
+const char CIPSTA_CUR[] PROGMEM = "AT+CIPSTA_CUR=\"";
+
 
 const char CWMODE_1[] PROGMEM = "AT+CWMODE=1";
 const char CWMODE_3[] PROGMEM = "AT+CWMODE=3";
@@ -203,6 +205,18 @@ bool SerialESP8266wifi::connectToAP(){
 
     readCommand(15000, OK, FAIL);
     return isConnectedToAP();
+}
+
+bool SerialESP8266wifi::setStaticIp(const char* ip, const char* gateway, const char* mask){
+    writeCommand(CIPSTA_CUR);
+    _serialOut -> print(ip);
+    writeCommand(COMMA_2);
+    _serialOut -> print(gateway);
+    writeCommand(COMMA_2);
+    _serialOut -> print(mask);
+    writeCommand(DOUBLE_QUOTE, EOL);
+    readCommand(1000, OK, FAIL);
+
 }
 
 bool SerialESP8266wifi::isConnectedToAP(){
