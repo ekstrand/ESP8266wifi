@@ -11,7 +11,7 @@ A simple ESP8266 Arduino library with built in re-connect functionality.
 
 
 ## Install
-* Download the library as a zip from https://github.com/ekstrand/SerialESP8266wifi/archive/master.zip 
+* Download the library as a zip from https://github.com/ekstrand/ESP8266wifi/archive/master.zip 
 * Unzip and place in ARDUINO_HOME/libraries/ directory as SerialESP8266wifi
 * Restart the Arduino IDE
 * In your sketch do a `#include <SerialESP8266wifi.h>`
